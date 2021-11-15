@@ -42,6 +42,8 @@ class Wpml_Cloudinary_Admin {
 		$this->wpml_cloudinary = $wpml_cloudinary;
 		$this->version = $version;
 
+		require_once plugin_dir_path( __FILE__ ) . 'admin/includes/class-wpml-cloudinary-attached-file.php';
+		require_once plugin_dir_path( __FILE__ ) . 'admin/includes/class-wpml-cloudinary-notices.php';
 	}
 
 	/**
@@ -50,39 +52,15 @@ class Wpml_Cloudinary_Admin {
 	 * @since    1.0.0
 	 */
 	public function load_requirements() {
+		$notices = new Wpml_Cloudinary_Notices();
+
 		if ( ! defined( 'ICL_SITEPRESS_VERSION' ) ) {
-			add_action( 'admin_notices', array( $this, 'missing_wpml_notice' ) );
+			add_action( 'admin_notices', array( $notices, 'missing_wpml_notice' ) );
 		}
 
 		if ( ! defined( 'CLDN_CORE') ) {
-			add_action( 'admin_notices', array( $this, 'missing_cldn_notice' ) );
+			add_action( 'admin_notices', array( $notices, 'missing_cldn_notice' ) );
 		}
-	}
-
-	/**
-	 * Missing WPML notice
-	 *
-	 * @since    1.0.0
-	 */
-	public function missing_wpml_notice() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p><?php _e( 'WPML Cloudinary is enabled but not effective. It requires WPML in order to work.', 'wpml-cloudinary' ); ?></p>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Missing Cloudinary notice
-	 *
-	 * @since    1.0.0
-	 */
-	public function missing_cldn_notice() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p><?php _e( 'WPML Cloudinary is enabled but not effective. It requires the Cloudinary plugin in order to work.', 'wpml-cloudinary' ); ?></p>
-		</div>
-		<?php
 	}
 
 	/**
@@ -135,23 +113,8 @@ class Wpml_Cloudinary_Admin {
 	 * Update duplicated WPML attachment file when original is updated by Cloudinary
 	 */
 	public function updated_attached_file($file, $attachment_id) {
-		/*
-		 * _wp_relative_upload_path function is marked private.
-		 * This means it is not intended for use by plugin or theme developers, only in other core functions. It is listed here for completeness.
-		 */
-		$upload_file = _wp_relative_upload_path($file);
-		$duplicates  = $this->get_duplicated_attachments($attachment_id);
+		$attached_file = new Wpml_Cloudinary_Attached_File();
 
-		if ($duplicates && $upload_file) {
-			foreach ($duplicates as $duplicate) {
-				if (!$duplicate->original) {
-					$duplicate_id = (int) $duplicate->element_id;
-					update_post_meta($duplicate_id, '_wp_attached_file', $upload_file);
-				}
-			}
-		}
-
-		return $file;
+		return $attached_file->file_updated($file, $attachment_id);
 	}
-
 }
