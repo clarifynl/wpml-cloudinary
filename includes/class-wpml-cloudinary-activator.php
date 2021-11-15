@@ -20,7 +20,7 @@
  * @subpackage wpml_cloudinary/includes
  * @author     Your Name <email@example.com>
  */
-class wpml_cloudinary_Activator {
+class Wpml_Cloudinary_Activator {
 
 	/**
 	 * Short Description. (use period)
@@ -30,7 +30,5 @@ class wpml_cloudinary_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-
 	}
-
 }

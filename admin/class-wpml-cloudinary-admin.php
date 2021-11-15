@@ -3,16 +3,6 @@
 /**
  * The admin-specific functionality of the plugin.
  *
- * @link       http://example.com
- * @since      1.0.0
- *
- * @package    wpml_cloudinary
- * @subpackage wpml_cloudinary/admin
- */
-
-/**
- * The admin-specific functionality of the plugin.
- *
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
@@ -20,7 +10,7 @@
  * @subpackage wpml_cloudinary/admin
  * @author     Your Name <email@example.com>
  */
-class wpml_cloudinary_Admin {
+class Wpml_Cloudinary_Admin {
 
 	/**
 	 * The ID of this plugin.
@@ -52,6 +42,47 @@ class wpml_cloudinary_Admin {
 		$this->wpml_cloudinary = $wpml_cloudinary;
 		$this->version = $version;
 
+	}
+
+	/**
+	 * Register the plugin requirements
+	 *
+	 * @since    1.0.0
+	 */
+	public function load_requirements() {
+		if ( ! defined( 'ICL_SITEPRESS_VERSION' ) ) {
+			add_action( 'admin_notices', array( $this, 'missing_wpml_notice' ) );
+		}
+
+		if ( ! defined( 'CLDN_CORE') ) {
+			add_action( 'admin_notices', array( $this, 'missing_cldn_notice' ) );
+		}
+	}
+
+	/**
+	 * Missing WPML notice
+	 *
+	 * @since    1.0.0
+	 */
+	public function missing_wpml_notice() {
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p><?php _e( 'WPML Cloudinary is enabled but not effective. It requires WPML in order to work.', 'wpml-cloudinary' ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Missing Cloudinary notice
+	 *
+	 * @since    1.0.0
+	 */
+	public function missing_cldn_notice() {
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p><?php _e( 'WPML Cloudinary is enabled but not effective. It requires the Cloudinary plugin in order to work.', 'wpml-cloudinary' ); ?></p>
+		</div>
+		<?php
 	}
 
 	/**
@@ -98,6 +129,29 @@ class wpml_cloudinary_Admin {
 
 		wp_enqueue_script( $this->wpml_cloudinary, plugin_dir_url( __FILE__ ) . 'js/wpml-cloudinary-admin.js', array( 'jquery' ), $this->version, false );
 
+	}
+
+	/*
+	 * Update duplicated WPML attachment file when original is updated by Cloudinary
+	 */
+	public function updated_attached_file($file, $attachment_id) {
+		/*
+		 * _wp_relative_upload_path function is marked private.
+		 * This means it is not intended for use by plugin or theme developers, only in other core functions. It is listed here for completeness.
+		 */
+		$upload_file = _wp_relative_upload_path($file);
+		$duplicates  = $this->get_duplicated_attachments($attachment_id);
+
+		if ($duplicates && $upload_file) {
+			foreach ($duplicates as $duplicate) {
+				if (!$duplicate->original) {
+					$duplicate_id = (int) $duplicate->element_id;
+					update_post_meta($duplicate_id, '_wp_attached_file', $upload_file);
+				}
+			}
+		}
+
+		return $file;
 	}
 
 }

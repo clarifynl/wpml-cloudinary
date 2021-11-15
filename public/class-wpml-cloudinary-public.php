@@ -3,16 +3,6 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       http://example.com
- * @since      1.0.0
- *
- * @package    wpml_cloudinary
- * @subpackage wpml_cloudinary/public
- */
-
-/**
- * The public-facing functionality of the plugin.
- *
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the public-facing stylesheet and JavaScript.
  *
@@ -20,7 +10,7 @@
  * @subpackage wpml_cloudinary/public
  * @author     Your Name <email@example.com>
  */
-class wpml_cloudinary_Public {
+class Wpml_Cloudinary_Public {
 
 	/**
 	 * The ID of this plugin.
