@@ -1,6 +1,7 @@
 <?php
 
-class Wpml_Cloudinary_Attached_File {
+class Wpml_Cloudinary_Duplicate_Media {
+
 	/**
 	 * Get all attachment translations created by WPML
 	 */
@@ -16,7 +17,7 @@ class Wpml_Cloudinary_Attached_File {
 	}
 
 	/*
-	 * Update duplicated WPML attachment file when original is updated by Cloudinary
+	 * Update duplicated WPML attachment file when original get's updated by Cloudinary
 	 */
 	public function file_updated($file, $attachment_id) {
 		$upload_file = $file;
