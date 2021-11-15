@@ -34,7 +34,7 @@ define( 'WPML_CLOUDINARY_VERSION', '1.0.0' );
  */
 function activate_wpml_cloudinary() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpml-cloudinary-activator.php';
-	Wpml_Cloudinary_Activator::activate();
+	WPML_Cloudinary_Activator::activate();
 }
 
 /**
@@ -43,7 +43,7 @@ function activate_wpml_cloudinary() {
  */
 function deactivate_wpml_cloudinary() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpml-cloudinary-deactivator.php';
-	Wpml_Cloudinary_Deactivator::deactivate();
+	WPML_Cloudinary_Deactivator::deactivate();
 }
 
 register_activation_hook( __FILE__, 'activate_wpml_cloudinary' );
@@ -66,7 +66,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-wpml-cloudinary.php';
  */
 function run_wpml_cloudinary() {
 
-	$plugin = new Wpml_Cloudinary();
+	$plugin = new WPML_Cloudinary();
 	$plugin->run();
 
 }

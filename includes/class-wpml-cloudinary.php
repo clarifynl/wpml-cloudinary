@@ -14,7 +14,7 @@
  * @subpackage wpml_cloudinary/includes
  * @author     Booreiland <toine@booreiland.amsterdam>
  */
-class wpml_cloudinary {
+class WPML_Cloudinary {
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -109,7 +109,7 @@ class wpml_cloudinary {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wpml-cloudinary-public.php';
 
-		$this->loader = new Wpml_Cloudinary_Loader();
+		$this->loader = new WPML_Cloudinary_Loader();
 
 	}
 
@@ -124,7 +124,7 @@ class wpml_cloudinary {
 	 */
 	private function set_locale() {
 
-		$plugin_i18n = new Wpml_Cloudinary_i18n();
+		$plugin_i18n = new WPML_Cloudinary_i18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
 
@@ -139,9 +139,10 @@ class wpml_cloudinary {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Wpml_Cloudinary_Admin( $this->get_wpml_cloudinary(), $this->get_version() );
+		$plugin_admin = new WPML_Cloudinary_Admin( $this->get_wpml_cloudinary(), $this->get_version() );
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_admin, 'load_requirements' );
+		$this->loader->add_action( 'wpml_loaded', $plugin_admin, 'wpml_loaded', 2 );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_filter( 'update_attached_file', $plugin_admin, 'updated_attached_file', 10, 2);
@@ -157,7 +158,7 @@ class wpml_cloudinary {
 	 */
 	private function define_public_hooks() {
 
-		$plugin_public = new Wpml_Cloudinary_Public( $this->get_wpml_cloudinary(), $this->get_version() );
+		$plugin_public = new WPML_Cloudinary_Public( $this->get_wpml_cloudinary(), $this->get_version() );
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );

@@ -1,6 +1,6 @@
 <?php
 
-class Wpml_Cloudinary_Duplicate_Media {
+class WPML_Cloudinary_Duplicate_Media {
 
 	/**
 	 * Get all attachment translations created by WPML

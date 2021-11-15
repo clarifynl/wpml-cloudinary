@@ -21,7 +21,7 @@
  * @subpackage wpml_cloudinary/includes
  * @author     Your Name <email@example.com>
  */
-class Wpml_Cloudinary_Loader {
+class WPML_Cloudinary_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.

@@ -10,7 +10,7 @@
  * @subpackage wpml_cloudinary/admin
  * @author     Your Name <email@example.com>
  */
-class Wpml_Cloudinary_Admin {
+class WPML_Cloudinary_Admin {
 
 	/**
 	 * The ID of this plugin.
@@ -43,6 +43,7 @@ class Wpml_Cloudinary_Admin {
 		$this->version = $version;
 
 		require_once plugin_dir_path( __FILE__ ) . 'classes/class-wpml-cloudinary-duplicate-media.php';
+		require_once plugin_dir_path( __FILE__ ) . 'classes/class-wpml-cloudinary-menu.php';
 		require_once plugin_dir_path( __FILE__ ) . 'classes/class-wpml-cloudinary-notices.php';
 	}
 
@@ -52,7 +53,7 @@ class Wpml_Cloudinary_Admin {
 	 * @since    1.0.0
 	 */
 	public function load_requirements() {
-		$notices = new Wpml_Cloudinary_Notices();
+		$notices = new WPML_Cloudinary_Notices();
 
 		if ( ! defined( 'ICL_SITEPRESS_VERSION' ) ) {
 			add_action( 'admin_notices', array( $notices, 'missing_wpml_notice' ) );
@@ -61,6 +62,32 @@ class Wpml_Cloudinary_Admin {
 		if ( ! defined( 'CLDN_CORE') ) {
 			add_action( 'admin_notices', array( $notices, 'missing_cldn_notice' ) );
 		}
+	}
+
+	/**
+	 * When WPML is loaded
+	 *
+	 * @since    1.0.0
+	 */
+	public function wpml_loaded() {
+		$menu = new WPML_Cloudinary_Menu();
+
+		if ( $this->is_admin_or_xmlrpc() && ! $this->is_uploading_plugin_or_theme() ) {
+			add_action( 'wpml_admin_menu_configure', array( $menu, 'wpml_menu' ) );
+		}
+	}
+
+	public function is_admin_or_xmlrpc() {
+		$is_admin  = is_admin();
+		$is_xmlrpc = ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST );
+
+		return $is_admin || $is_xmlrpc;
+	}
+
+	public function is_uploading_plugin_or_theme() {
+		global $action;
+
+		return ( isset( $action ) && ( $action == 'upload-plugin' || $action == 'upload-theme' ) );
 	}
 
 	/**
@@ -85,7 +112,7 @@ class Wpml_Cloudinary_Admin {
 	 * Update duplicated WPML attachment file when original is updated by Cloudinary
 	 */
 	public function updated_attached_file($file, $attachment_id) {
-		$duplicate_media = new Wpml_Cloudinary_Duplicate_Media();
+		$duplicate_media = new WPML_Cloudinary_Duplicate_Media();
 
 		return $duplicate_media->file_updated($file, $attachment_id);
 	}

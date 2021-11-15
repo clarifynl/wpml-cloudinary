@@ -1,6 +1,6 @@
 <?php
 
-class Wpml_Cloudinary_Notices {
+class WPML_Cloudinary_Notices {
 
 	/**
 	 * Missing WPML notice

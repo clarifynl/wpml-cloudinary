@@ -20,7 +20,7 @@
  * @subpackage wpml_cloudinary/includes
  * @author     Your Name <email@example.com>
  */
-class Wpml_Cloudinary_Deactivator {
+class WPML_Cloudinary_Deactivator {
 
 	/**
 	 * Short Description. (use period)

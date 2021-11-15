@@ -10,7 +10,7 @@
  * @subpackage wpml_cloudinary/public
  * @author     Your Name <email@example.com>
  */
-class Wpml_Cloudinary_Public {
+class WPML_Cloudinary_Public {
 
 	/**
 	 * The ID of this plugin.
