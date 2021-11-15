@@ -3,7 +3,7 @@
 class WPML_Cloudinary_Menu {
 
 	/**
-	 * @param string $menu_id
+	 * Register WPML Cloudinary menu
 	 */
 	public function wpml_menu( $menu_id ) {
 		if ( 'WPML' !== $menu_id ) {
@@ -22,18 +22,97 @@ class WPML_Cloudinary_Menu {
 		do_action( 'wpml_admin_menu_register_item', $menu );
 	}
 
+	/**
+	 * Render WPML Cloudinary menu
+	 */
 	public function menu_content() {
 		$template_paths   = array( WPML_CLOUDINARY_PLUGIN_PATH . '/admin/templates' );
 		$template_loader  = new WPML_Twig_Template_Loader( $template_paths );
 		$template_service = $template_loader->get_template();
+
+		$languages        = apply_filters('wpml_active_languages', NULL);
 		$template_model   = array(
-			'attachments'  => array(),
+			'attachments'  => $this->get_duplicated_media(),
+			'languages'    => $languages,
 			'strings'      => array(
-				'heading'     => __('Cloudinary Media Translation', 'wpml-cloudinary'),
-				'description' => __('If existing duplicated media is missing the cloudinary url as attached file path, press the <strong>sync</strong> button below', 'wpml-cloudinary')
+				'heading'           => __('Cloudinary Media Translation', 'wpml-cloudinary'),
+				'description'       => __('If existing duplicated media is missing the cloudinary url as attached file path, press the <strong>sync</strong> button below', 'wpml-cloudinary'),
+				'original_language' => __('Original Media Language', 'wpml-cloudinary')
 			)
 		);
 
 		echo $template_service->show($template_model, 'wpml-cloudinary-menu.twig');
+	}
+
+	/**
+	 * Get WPML batch translate limit
+	 */
+	private function get_batch_translate_limit( $active_languages ) {
+		global $sitepress;
+
+		$limit = $sitepress->get_wp_api()->constant('WPML_MEDIA_BATCH_LIMIT');
+		$limit = !$limit ? floor(10 / max($active_languages - 1, 1)) : $limit;
+		return max($limit, 1);
+	}
+
+	/**
+	 * Update all duplicated attachements by WPML
+	 */
+	public function batch_update_duplicated_media() {
+		global $wpdb;
+
+		$wpml_media_att_dup = make(\WPML_Media_Attachments_Duplication::class);
+		$active_languages   = count(apply_filters('wpml_active_languages', NULL));
+		$limit              = $this->get_batch_translate_limit($active_languages);
+
+		$sql = "
+			SELECT element_id
+			FROM {$wpdb->prefix}icl_translations
+			WHERE element_type = 'post_attachment'
+			AND source_language_code IS NULL
+			LIMIT %d
+		";
+
+		// $sql = "
+		// 	SELECT SQL_CALC_FOUND_ROWS p1.ID, p1.post_parent
+		// 	FROM {$wpdb->prefix}icl_translations t
+		// 	INNER JOIN {$wpdb->posts} p1
+		// 		ON t.element_id = p1.ID
+		// 	LEFT JOIN {$wpdb->prefix}icl_translations tt
+		// 		ON t.trid = tt.trid
+		// 	WHERE t.element_type = 'post_attachment'
+		// 		AND t.source_language_code IS null
+		// 	GROUP BY p1.ID, p1.post_parent
+		// 	HAVING count(tt.language_code) < %d
+		// 	LIMIT %d
+		// ";
+		$sql_prepared = $wpdb->prepare($sql, [$limit]);
+		$attachments  = $wpdb->get_results($sql_prepared);
+		$found        = $wpdb->get_var('SELECT FOUND_ROWS()');
+
+		syslog(LOG_DEBUG, 'active_languages: '. $active_languages . ' limit: ' . $limit . ' found: '. $found);
+		if ($attachments) {
+			foreach ($attachments as $attachment) {
+				syslog(LOG_DEBUG, '$attachment: '. json_encode($attachment));
+			}
+		}
+
+		$response = [];
+		$response['left'] = max($found - $limit, 0);
+		if ($response['left']) {
+			$response['message'] = sprintf(esc_html__('Updating duplicated media. %d left', 'sitepress'), $response['left']);
+		} else {
+			$response['message'] = sprintf(esc_html__('Updating duplicated media: done!', 'sitepress'), $response['left']);
+		}
+
+		echo wp_json_encode($response);
+		return $response['left'];
+	}
+
+	/**
+	 * Get duplicated media
+	 */
+	public function get_duplicated_media() {
+		return;
 	}
 }
