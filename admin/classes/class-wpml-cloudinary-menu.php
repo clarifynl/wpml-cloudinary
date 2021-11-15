@@ -46,18 +46,18 @@ class WPML_Cloudinary_Menu {
 
 	/**
 	 * Get WPML batch translate limit
-	 */
+	 *
 	private function get_batch_translate_limit( $active_languages ) {
 		global $sitepress;
 
 		$limit = $sitepress->get_wp_api()->constant('WPML_MEDIA_BATCH_LIMIT');
 		$limit = !$limit ? floor(10 / max($active_languages - 1, 1)) : $limit;
 		return max($limit, 1);
-	}
+	}*/
 
 	/**
 	 * Update all duplicated attachements by WPML
-	 */
+	 *
 	public function batch_update_duplicated_media() {
 		global $wpdb;
 
@@ -73,24 +73,10 @@ class WPML_Cloudinary_Menu {
 			LIMIT %d
 		";
 
-		// $sql = "
-		// 	SELECT SQL_CALC_FOUND_ROWS p1.ID, p1.post_parent
-		// 	FROM {$wpdb->prefix}icl_translations t
-		// 	INNER JOIN {$wpdb->posts} p1
-		// 		ON t.element_id = p1.ID
-		// 	LEFT JOIN {$wpdb->prefix}icl_translations tt
-		// 		ON t.trid = tt.trid
-		// 	WHERE t.element_type = 'post_attachment'
-		// 		AND t.source_language_code IS null
-		// 	GROUP BY p1.ID, p1.post_parent
-		// 	HAVING count(tt.language_code) < %d
-		// 	LIMIT %d
-		// ";
 		$sql_prepared = $wpdb->prepare($sql, [$limit]);
 		$attachments  = $wpdb->get_results($sql_prepared);
 		$found        = $wpdb->get_var('SELECT FOUND_ROWS()');
 
-		syslog(LOG_DEBUG, 'active_languages: '. $active_languages . ' limit: ' . $limit . ' found: '. $found);
 		if ($attachments) {
 			foreach ($attachments as $attachment) {
 				syslog(LOG_DEBUG, '$attachment: '. json_encode($attachment));
@@ -106,8 +92,7 @@ class WPML_Cloudinary_Menu {
 		}
 
 		echo wp_json_encode($response);
-		return $response['left'];
-	}
+	}*/
 
 	/**
 	 * Get duplicated media
