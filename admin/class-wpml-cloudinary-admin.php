@@ -42,8 +42,8 @@ class Wpml_Cloudinary_Admin {
 		$this->wpml_cloudinary = $wpml_cloudinary;
 		$this->version = $version;
 
-		require_once plugin_dir_path( __FILE__ ) . 'admin/includes/class-wpml-cloudinary-attached-file.php';
-		require_once plugin_dir_path( __FILE__ ) . 'admin/includes/class-wpml-cloudinary-notices.php';
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpml-cloudinary-attached-file.php';
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpml-cloudinary-notices.php';
 	}
 
 	/**
