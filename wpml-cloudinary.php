@@ -27,6 +27,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Rename this for your plugin and update it as you release new versions.
  */
 define( 'WPML_CLOUDINARY_VERSION', '1.0.0' );
+define( 'WPML_CLOUDINARY_PLUGIN_PATH', __DIR__ );
 
 /**
  * The code that runs during plugin activation.

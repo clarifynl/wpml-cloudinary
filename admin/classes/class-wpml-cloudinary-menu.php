@@ -23,14 +23,17 @@ class WPML_Cloudinary_Menu {
 	}
 
 	public function menu_content() {
-		global $sitepress, $wpdb;
+		$template_paths   = array( WPML_CLOUDINARY_PLUGIN_PATH . '/admin/templates' );
+		$template_loader  = new WPML_Twig_Template_Loader( $template_paths );
+		$template_service = $template_loader->get_template();
+		$template_model   = array(
+			'attachments'  => array(),
+			'strings'      => array(
+				'heading'     => __('Cloudinary Media Translation', 'wpml-cloudinary'),
+				'description' => __('If existing duplicated media is missing the cloudinary url as attached file path, press the <strong>sync</strong> button below', 'wpml-cloudinary')
+			)
+		);
 
-		$wpml_wp_api     = $sitepress->get_wp_api();
-		$wpml_media_path = $wpml_wp_api->constant( 'WPML_MEDIA_PATH' );
-
-		$template_service_loader = new WPML_Twig_Template_Loader( array( $wpml_media_path . '/templates/menus/' ) );
-		$pagination              = new WPML_Admin_Pagination();
-
-		return new WPML_Media_Menus( $template_service_loader, $sitepress, $wpdb, $pagination );
+		echo $template_service->show($template_model, 'wpml-cloudinary-menu.twig');
 	}
 }
