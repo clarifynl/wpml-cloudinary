@@ -19,11 +19,15 @@ class Wpml_Cloudinary_Attached_File {
 	 * Update duplicated WPML attachment file when original is updated by Cloudinary
 	 */
 	public function file_updated($file, $attachment_id) {
-		/*
-		 * _wp_relative_upload_path function is marked private.
-		 * This means it is not intended for use by plugin or theme developers, only in other core functions. It is listed here for completeness.
-		 */
-		$upload_file = _wp_relative_upload_path($file);
+		$upload_file = $file;
+		$uploads     = wp_get_upload_dir();
+
+		if (0 === strpos($file, $uploads['basedir'])) {
+			$upload_file = str_replace($uploads['basedir'], '', $file);
+			$upload_file = ltrim($upload_file, '/');
+		}
+
+		$upload_file = apply_filters('_wp_relative_upload_path', $upload_file, $file);
 		$duplicates  = $this->get_duplicated_attachments($attachment_id);
 
 		if ($duplicates && $upload_file) {
