@@ -1,38 +1,65 @@
 <?php
 
+use Cloudinary\Media;
+
 class WPML_Cloudinary_Duplicate_Media {
 
 	/*
 	 * Fix missing file paths on duplicated media
 	 */
 	public function fix_missing_file_paths() {
-		global $wpdb;
+		global $wpdb, $cloudinary_plugin;
 
-		$limit            = 10;
-		$response         = array();
-		$active_languages = count(apply_filters('wpml_active_languages', NULL));
+		$limit = 10;
+		$response = array();
 
+		/*
+		 * MYSQL query that gets:
+		 * 1) All attachment translations with a language code
+		 * 2) Checks if the translation has a missing _wp_attached_file in postmeta
+		 * 3) Checks if the original attachment exists in the translations
+		 * 4) Checks if the original attachment does have a _wp_attached_file in postmeta
+		 */
 		$sql = "
-			SELECT SQL_CALC_FOUND_ROWS p1.ID, p1.post_parent
-			FROM {$wpdb->prefix}icl_translations t
-			INNER JOIN {$wpdb->posts} p1
-				ON t.element_id = p1.ID
-			LEFT JOIN {$wpdb->prefix}icl_translations tt
-				ON t.trid = tt.trid
+			SELECT SQL_CALC_FOUND_ROWS t.element_id, t.trid, t.source_language_code
+			FROM {$wpdb->prefix}icl_translations as t
+			INNER JOIN $wpdb->postmeta pm
+				ON t.element_id = pm.post_id
 			WHERE t.element_type = 'post_attachment'
-				AND t.source_language_code IS null
-			GROUP BY p1.ID, p1.post_parent
-			HAVING count(tt.language_code) < %d
+				AND t.source_language_code IS NOT null
+				AND pm.meta_key = '_wp_attached_file'
+				AND pm.meta_value = ''
+				AND t.trid IN (
+					SELECT trid
+					FROM {$wpdb->prefix}icl_translations as o
+					INNER JOIN $wpdb->postmeta pmo
+						ON o.element_id = pmo.post_id
+					WHERE o.element_type = 'post_attachment'
+						AND o.source_language_code IS null
+						AND pmo.meta_key = '_wp_attached_file'
+						AND pmo.meta_value <> ''
+				)
 			LIMIT %d
 		";
 
-		$sql_prepared = $wpdb->prepare( $sql, array( $active_languages, $limit ) );
+		$sql_prepared = $wpdb->prepare( $sql, $limit );
 		$attachments  = $wpdb->get_results( $sql_prepared );
 		$found        = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
 
 		if ( $attachments ) {
+			$cld_media = new Media($cloudinary_plugin);
+
 			foreach ( $attachments as $attachment ) {
-				syslog(LOG_DEBUG, 'fix_missing_file_paths attachment: '. json_encode($attachment));
+				$translation   = (int) $attachment->element_id;
+				$original_lang = $attachment->source_language_code;
+				$original      = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
+				$attached_file = get_post_meta($original, '_wp_attached_file', true);
+				$is_cloudinary = (bool) $cld_media->is_cloudinary_url($attached_file);
+				syslog(LOG_DEBUG, 'fix_missing_file_paths translation: '. $translation . ' original: '. $original . ' is cloudinary url: ' . $is_cloudinary . ' file: ' . json_encode($attached_file));
+
+				if ($attached_file && $is_cloudinary) {
+					update_post_meta($translation, '_wp_attached_file', $attached_file);
+				}
 			}
 		}
 
@@ -44,6 +71,8 @@ class WPML_Cloudinary_Duplicate_Media {
 		}
 
 		wp_send_json( $response );
+
+		return $response['left'];
 	}
 
 	/**
