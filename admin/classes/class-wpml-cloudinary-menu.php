@@ -30,74 +30,18 @@ class WPML_Cloudinary_Menu {
 		$template_loader  = new WPML_Twig_Template_Loader( $template_paths );
 		$template_service = $template_loader->get_template();
 
-		$languages        = apply_filters('wpml_active_languages', NULL);
 		$template_model   = array(
-			'attachments'  => $this->get_duplicated_media(),
-			'languages'    => $languages,
-			'strings'      => array(
-				'heading'           => __('Cloudinary Media Translation', 'wpml-cloudinary'),
-				'description'       => __('If existing duplicated media is missing the cloudinary url as attached file path, press the <strong>sync</strong> button below', 'wpml-cloudinary'),
-				'original_language' => __('Original Media Language', 'wpml-cloudinary')
+			'spinner'     => ICL_PLUGIN_URL . '/res/img/ajax-loader.gif',
+			'ajax_nonce'  => wp_create_nonce('wc_ajax_nonce'),
+			'strings'     => array(
+				'heading'     => __('Cloudinary Media Translation', 'wpml-cloudinary'),
+				'warning'     => __('Please make backup of your database before using this.', 'wpml-cloudinary'),
+				'description' => __('Sets the attached file path from the original when missing for attachments that are marked as duplicated.', 'wpml-cloudinary'),
+				'button'      => __('Fix missing file paths on duplicated media', 'wpml-cloudinary'),
+				'finished'    => __("You're all done. From now on, all new Cloudinary media that you insert will be synced between translations.", 'wpml-cloudinary')
 			)
 		);
 
 		echo $template_service->show($template_model, 'wpml-cloudinary-menu.twig');
-	}
-
-	/**
-	 * Get WPML batch translate limit
-	 *
-	private function get_batch_translate_limit( $active_languages ) {
-		global $sitepress;
-
-		$limit = $sitepress->get_wp_api()->constant('WPML_MEDIA_BATCH_LIMIT');
-		$limit = !$limit ? floor(10 / max($active_languages - 1, 1)) : $limit;
-		return max($limit, 1);
-	}*/
-
-	/**
-	 * Update all duplicated attachements by WPML
-	 *
-	public function batch_update_duplicated_media() {
-		global $wpdb;
-
-		$wpml_media_att_dup = make(\WPML_Media_Attachments_Duplication::class);
-		$active_languages   = count(apply_filters('wpml_active_languages', NULL));
-		$limit              = $this->get_batch_translate_limit($active_languages);
-
-		$sql = "
-			SELECT element_id
-			FROM {$wpdb->prefix}icl_translations
-			WHERE element_type = 'post_attachment'
-			AND source_language_code IS NULL
-			LIMIT %d
-		";
-
-		$sql_prepared = $wpdb->prepare($sql, [$limit]);
-		$attachments  = $wpdb->get_results($sql_prepared);
-		$found        = $wpdb->get_var('SELECT FOUND_ROWS()');
-
-		if ($attachments) {
-			foreach ($attachments as $attachment) {
-				syslog(LOG_DEBUG, '$attachment: '. json_encode($attachment));
-			}
-		}
-
-		$response = [];
-		$response['left'] = max($found - $limit, 0);
-		if ($response['left']) {
-			$response['message'] = sprintf(esc_html__('Updating duplicated media. %d left', 'sitepress'), $response['left']);
-		} else {
-			$response['message'] = sprintf(esc_html__('Updating duplicated media: done!', 'sitepress'), $response['left']);
-		}
-
-		echo wp_json_encode($response);
-	}*/
-
-	/**
-	 * Get duplicated media
-	 */
-	public function get_duplicated_media() {
-		return;
 	}
 }
