@@ -1,32 +1,85 @@
-(function( $ ) {
+/*global jQuery, ajaxurl */
+(function ($) {
 	'use strict';
 
-	/**
-	 * All of the code for your admin-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
+	function onLoadEvent() {
+		var form         = $('#wpml_cloudinary_options_form');
+		var form_action  = form.find('#wpml_cloudinary_options_action');
+		var submitButton = form.find(':submit');
+
+		submitButton.click(
+			function () {
+				form_action.val($(this).attr('name'));
+			}
+		);
+
+		form.submit(
+			function () {
+				if (!submitButton.attr('disabled')) {
+					switch (form_action.val()) {
+						case 'fix_missing_file_paths':
+							wpml_cloudinary_options_form_working();
+							wpml_cloudinary_fix_missing_file_paths();
+							break;
+					}
+				}
+
+				form_action.val(0);
+				return false;
+			}
+		);
+
+		function wpml_update_status(message) {
+			$(form).find('.status').html(message);
+			if (message.length > 0) {
+				$(form).find('.status').show();
+			} else {
+				$(form).find('.status').fadeOut();
+			}
+		}
+
+		function wpml_cloudinary_options_form_working() {
+			wpml_update_status('');
+			submitButton.prop('disabled', true);
+			$(form).find('.progress').fadeIn();
+		}
+
+		function wpml_cloudinary_options_form_finished(status) {
+			submitButton.prop('disabled', false);
+			$(form).find('.progress').fadeOut();
+			wpml_update_status(status);
+			window.setTimeout(
+				function () {
+					wpml_update_status('');
+				}, 1000
+			);
+		}
+
+		function wpml_cloudinary_fix_missing_file_paths() {
+			$.ajax({
+				url:      ajaxurl,
+				type:     'POST',
+				data:     {action: 'fix_missing_file_paths'},
+				dataType: 'json',
+				success:  function (ret) {
+					wpml_update_status(ret.message);
+					if (ret.left > 0) {
+						wpml_cloudinary_fix_missing_file_paths();
+					} else {
+						wpml_cloudinary_options_form_finished(ret.message);
+						$('#wpml_cloudinary_all_done').fadeIn();
+					}
+				},
+				error: function (jqXHR, textStatus) {
+					wpml_update_status('Duplicating missing file paths: please try again (' + textStatus + ')');
+				}
+
+			});
+		}
+	}
+
+	$( window ).load(function() {
+		onLoadEvent();
+	});
 
 })( jQuery );

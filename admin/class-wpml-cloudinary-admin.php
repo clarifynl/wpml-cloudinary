@@ -108,6 +108,17 @@ class WPML_Cloudinary_Admin {
 		wp_enqueue_script( $this->wpml_cloudinary, plugin_dir_url( __FILE__ ) . 'js/wpml-cloudinary-admin.js', array( 'jquery' ), $this->version, false );
 	}
 
+	/**
+	 * Handle the AJAX post request for fixing the missing file paths
+	 *
+	 * @since    1.0.0
+	 */
+	public function fix_missing_file_paths() {
+		$duplicate_media = new WPML_Cloudinary_Duplicate_Media();
+
+		return $duplicate_media->fix_missing_file_paths();
+	}
+
 	/*
 	 * Update duplicated WPML attachment file when original is updated by Cloudinary
 	 */
