@@ -40,6 +40,7 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Update duplicated WPML attachment file when original get's updated by Cloudinary
 	 */
 	public function file_updated($file, $attachment_id) {
+		syslog(LOG_DEBUG, 'file: ' . $file . ' attachment_id: ' . $attachment_id);
 		$upload_file      = $file;
 		$uploads          = wp_get_upload_dir();
 		$cloudinary_media = $this->get_cloudinary_media();
@@ -60,10 +61,10 @@ class WPML_Cloudinary_Duplicate_Media {
 					$is_cloudinary    = (bool) $cloudinary_media->is_cloudinary_url($upload_file);
 					$cloudinary_meta  = get_post_meta($attachment_id, '_cloudinary_v2', true);
 					$duplicate_id     = (int) $duplicate->element_id;
+					syslog(LOG_DEBUG, 'new file: ' . $upload_file . ' cloudinary url: ' . $is_cloudinary);
 					update_post_meta($duplicate_id, '_wp_attached_file', $upload_file);
 
 					// Copy _cloudinary_v2 meta when sync is finished
-					syslog(LOG_DEBUG, 'file: ' . $upload_file . ' cloudinary url: ' . $is_cloudinary);
 					if ($is_cloudinary) {
 						update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
 					}
