@@ -4,8 +4,53 @@ use Cloudinary\Media;
 
 class WPML_Cloudinary_Duplicate_Media {
 
+	/**
+	 * Get all attachment translations created by WPML
+	 */
+	public function get_attachment_duplicates($attachment_id) {
+		$trid = apply_filters('wpml_element_trid', NULL, $attachment_id, 'post_attachment');
+		if ($trid) {
+			$duplications = apply_filters('wpml_get_element_translations', NULL, $trid, 'post_attachment');
+
+			return $duplications;
+		}
+
+		return;
+	}
+
 	/*
-	 * Fix missing file paths on duplicated media
+	 * Update duplicated WPML attachment file when original get's updated by Cloudinary
+	 */
+	public function file_updated($file, $attachment_id) {
+		$upload_file = $file;
+		$uploads     = wp_get_upload_dir();
+
+		// Get relative upload path from absolute file path
+		if (0 === strpos($file, $uploads['basedir'])) {
+			$upload_file = str_replace($uploads['basedir'], '', $file);
+			$upload_file = ltrim($upload_file, '/');
+		}
+
+		$upload_file = apply_filters('_wp_relative_upload_path', $upload_file, $file);
+		$duplicates  = $this->get_attachment_duplicates($attachment_id);
+
+		// If attachment has duplicates
+		if ($duplicates && $upload_file) {
+			foreach ($duplicates as $duplicate) {
+				if (!$duplicate->original) {
+					$cloudinary_meta = get_post_meta($attachment_id, '_cloudinary_v2', true);
+					$duplicate_id    = (int) $duplicate->element_id;
+					update_post_meta($duplicate_id, '_wp_attached_file', $upload_file);
+					update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
+				}
+			}
+		}
+
+		return $file;
+	}
+
+	/*
+	 * Fix missing file paths on existing duplicated media
 	 */
 	public function fix_missing_file_paths() {
 		global $wpdb, $cloudinary_plugin;
@@ -71,50 +116,5 @@ class WPML_Cloudinary_Duplicate_Media {
 		}
 
 		wp_send_json( $response );
-
-		return $response['left'];
 	}
-
-	/**
-	 * Get all attachment translations created by WPML
-	 */
-	public function get_attachment_duplicates($attachment_id) {
-		$trid = apply_filters('wpml_element_trid', NULL, $attachment_id, 'post_attachment');
-		if ($trid) {
-			$duplications = apply_filters('wpml_get_element_translations', NULL, $trid, 'post_attachment');
-
-			return $duplications;
-		}
-
-		return;
-	}
-
-	/*
-	 * Update duplicated WPML attachment file when original get's updated by Cloudinary
-	 */
-	public function file_updated($file, $attachment_id) {
-		$upload_file = $file;
-		$uploads     = wp_get_upload_dir();
-
-		if (0 === strpos($file, $uploads['basedir'])) {
-			$upload_file = str_replace($uploads['basedir'], '', $file);
-			$upload_file = ltrim($upload_file, '/');
-		}
-
-		$upload_file = apply_filters('_wp_relative_upload_path', $upload_file, $file);
-		$duplicates  = $this->get_attachment_duplicates($attachment_id);
-
-		// If attachment has duplicates
-		if ($duplicates && $upload_file) {
-			foreach ($duplicates as $duplicate) {
-				if (!$duplicate->original) {
-					$duplicate_id = (int) $duplicate->element_id;
-					update_post_meta($duplicate_id, '_wp_attached_file', $upload_file);
-				}
-			}
-		}
-
-		return $file;
-	}
-
 }
