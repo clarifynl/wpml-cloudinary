@@ -112,7 +112,7 @@ class WPML_Cloudinary_Admin {
 	 * Update duplicated WPML attachment meta when original is updated by Cloudinary
 	 */
 	public function updated_attachment_meta($meta_id, $object_id, $meta_key, $_meta_value) {
-		syslog(LOG_DEBUG, 'updated meta_id: ' . $meta_id . ' meta_key: ' . $meta_key . ' meta_value: ' . $_meta_value);
+		syslog(LOG_DEBUG, 'updated meta_id: ' . $meta_id . ' meta_key: ' . $meta_key . ' meta_value: ' . json_encode($_meta_value));
 	}
 
 	/**
