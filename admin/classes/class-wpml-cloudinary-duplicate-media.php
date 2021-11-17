@@ -16,7 +16,7 @@ class WPML_Cloudinary_Duplicate_Media {
 		global $cloudinary_plugin;
 
 		if (!$this->cloudinary_media && $cloudinary_plugin) {
-			$this->cloudinary_media = new \Media($cloudinary_plugin);
+			$this->cloudinary_media = new Media($cloudinary_plugin);
 		}
 
 		return $this->cloudinary_media;
