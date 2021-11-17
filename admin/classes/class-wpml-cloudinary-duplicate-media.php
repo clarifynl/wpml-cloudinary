@@ -40,10 +40,8 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Update duplicated WPML attachment file when original get's updated by Cloudinary
 	 */
 	public function file_updated($file, $attachment_id) {
-		syslog(LOG_DEBUG, 'file: ' . $file . ' attachment_id: ' . $attachment_id);
-		$upload_file      = $file;
-		$uploads          = wp_get_upload_dir();
-		$cloudinary_media = $this->get_cloudinary_media();
+		$upload_file = $file;
+		$uploads     = wp_get_upload_dir();
 
 		// Get relative upload path from absolute file path
 		if (0 === strpos($file, $uploads['basedir'])) {
@@ -58,15 +56,20 @@ class WPML_Cloudinary_Duplicate_Media {
 		if ($duplicates && $upload_file) {
 			foreach ($duplicates as $duplicate) {
 				if (!$duplicate->original) {
-					$is_cloudinary    = (bool) $cloudinary_media->is_cloudinary_url($upload_file);
-					$cloudinary_meta  = get_post_meta($attachment_id, '_cloudinary_v2', true);
-					$duplicate_id     = (int) $duplicate->element_id;
-					syslog(LOG_DEBUG, 'new file: ' . $upload_file . ' cloudinary url: ' . $is_cloudinary);
+					$cloudinary_meta = get_post_meta($attachment_id, '_cloudinary_v2', true);
+					$duplicate_id    = (int) $duplicate->element_id;
 					update_post_meta($duplicate_id, '_wp_attached_file', $upload_file);
 
-					// Copy _cloudinary_v2 meta when sync is finished
-					if ($is_cloudinary) {
-						update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
+					// Copy _cloudinary_v2 meta and sync id when sync is finished
+					if ($cloudinary_meta) {
+						$cloudinary_data = maybe_unserialize($cloudinary_meta);
+						if ($cloudinary_data && is_array($cloudinary_data)) {
+							$sync_public_id = isset($cloudinary_data['_sync_signature']['public_id']) ? $cloudinary_data['_sync_signature']['public_id'] : null;
+							if ($sync_public_id) {
+								update_post_meta($duplicate_id, '_' . $sync_public_id, '1');
+								update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
+							}
+						}
 					}
 				}
 			}
