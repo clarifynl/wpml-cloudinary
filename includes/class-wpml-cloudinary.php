@@ -135,8 +135,8 @@ class WPML_Cloudinary {
 		$this->loader->add_action( 'plugins_loaded', $plugin_admin, 'load_requirements' );
 		$this->loader->add_action( 'wpml_loaded', $plugin_admin, 'wpml_loaded', 2 );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-		$this->loader->add_action( 'wp_ajax_fix_missing_file_paths', $plugin_admin, 'fix_missing_file_paths' );
 		$this->loader->add_filter( 'update_attached_file', $plugin_admin, 'updated_attached_file', 10, 2 );
+		$this->loader->add_action( 'wp_ajax_fix_missing_file_paths', $plugin_admin, 'fix_missing_file_paths' );
 	}
 
 	/**
