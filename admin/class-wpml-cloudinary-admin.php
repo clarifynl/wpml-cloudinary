@@ -108,6 +108,13 @@ class WPML_Cloudinary_Admin {
 		return $duplicate_media->file_updated($file, $attachment_id);
 	}
 
+	/*
+	 * Update duplicated WPML attachment meta when original is updated by Cloudinary
+	 */
+	public function updated_attachment_meta($meta_id, $object_id, $meta_key, $_meta_value) {
+		syslog(LOG_DEBUG, 'updated meta_id: ' . $meta_id . ' meta_key: ' . $meta_key . ' meta_value: ' . $_meta_value);
+	}
+
 	/**
 	 * Handle the AJAX post request for fixing the missing file paths
 	 *
