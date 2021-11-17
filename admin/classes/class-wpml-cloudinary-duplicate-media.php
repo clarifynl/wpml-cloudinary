@@ -5,6 +5,24 @@ use Cloudinary\Media;
 class WPML_Cloudinary_Duplicate_Media {
 
 	/**
+	 * @var $cloudinary_media
+	 */
+	private $cloudinary_media = null;
+
+	/**
+	 * Get Cloudinary Plugin Media class
+	 */
+	private function get_cloudinary_media() {
+		global $cloudinary_plugin;
+
+		if (!$this->cloudinary_media && $cloudinary_plugin) {
+			$this->cloudinary_media = new \Media($cloudinary_plugin);
+		}
+
+		return $this->cloudinary_media;
+	}
+
+	/**
 	 * Get all attachment translations created by WPML
 	 */
 	public function get_attachment_duplicates($attachment_id) {
@@ -38,10 +56,17 @@ class WPML_Cloudinary_Duplicate_Media {
 		if ($duplicates && $upload_file) {
 			foreach ($duplicates as $duplicate) {
 				if (!$duplicate->original) {
-					$cloudinary_meta = get_post_meta($attachment_id, '_cloudinary_v2', true);
-					$duplicate_id    = (int) $duplicate->element_id;
+					$cloudinary_media = $this->get_cloudinary_media();
+					$is_cloudinary    = (bool) $cloudinary_media->is_cloudinary_url($upload_file);
+					$cloudinary_meta  = get_post_meta($attachment_id, '_cloudinary_v2', true);
+					$duplicate_id     = (int) $duplicate->element_id;
 					update_post_meta($duplicate_id, '_wp_attached_file', $upload_file);
-					update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
+
+					// Copy _cloudinary_v2 meta when sync is finished
+					syslog(LOG_DEBUG, 'file:' . $upload_file . ' cloudinary url? ' . $is_cloudinary);
+					if ($is_cloudinary) {
+						update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
+					}
 				}
 			}
 		}
@@ -53,10 +78,11 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Fix missing file paths on existing duplicated media
 	 */
 	public function fix_missing_file_paths() {
-		global $wpdb, $cloudinary_plugin;
+		global $wpdb;
 
 		$limit = 10;
 		$response = array();
+		$cloudinary_media = $this->get_cloudinary_media();
 
 		/*
 		 * MYSQL query that gets:
@@ -92,15 +118,12 @@ class WPML_Cloudinary_Duplicate_Media {
 		$found        = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
 
 		if ( $attachments ) {
-			$cld_media = new Media($cloudinary_plugin);
-
 			foreach ( $attachments as $attachment ) {
-				$translation   = (int) $attachment->element_id;
-				$original_lang = $attachment->source_language_code;
-				$original      = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
-				$attached_file = get_post_meta($original, '_wp_attached_file', true);
-				$is_cloudinary = (bool) $cld_media->is_cloudinary_url($attached_file);
-				syslog(LOG_DEBUG, 'fix_missing_file_paths translation: '. $translation . ' original: '. $original . ' is cloudinary url: ' . $is_cloudinary . ' file: ' . json_encode($attached_file));
+				$translation      = (int) $attachment->element_id;
+				$original_lang    = $attachment->source_language_code;
+				$original         = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
+				$attached_file    = get_post_meta($original, '_wp_attached_file', true);
+				$is_cloudinary    = (bool) $cloudinary_media->is_cloudinary_url($attached_file);
 
 				if ($attached_file && $is_cloudinary) {
 					update_post_meta($translation, '_wp_attached_file', $attached_file);
