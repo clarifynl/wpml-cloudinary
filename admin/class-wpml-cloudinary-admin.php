@@ -91,15 +91,6 @@ class WPML_Cloudinary_Admin {
 	}
 
 	/**
-	 * Register the stylesheets for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
-		wp_enqueue_style( $this->wpml_cloudinary, plugin_dir_url( __FILE__ ) . 'css/wpml-cloudinary-admin.css', array(), $this->version, 'all' );
-	}
-
-	/**
 	 * Register the JavaScript for the admin area.
 	 *
 	 * @since    1.0.0

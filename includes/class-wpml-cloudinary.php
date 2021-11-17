@@ -64,8 +64,6 @@ class WPML_Cloudinary {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
-		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -76,7 +74,6 @@ class WPML_Cloudinary {
 	 * - wpml_cloudinary_Loader. Orchestrates the hooks of the plugin.
 	 * - wpml_cloudinary_i18n. Defines internationalization functionality.
 	 * - wpml_cloudinary_Admin. Defines all hooks for the admin area.
-	 * - wpml_cloudinary_Public. Defines all hooks for the public side of the site.
 	 *
 	 * Create an instance of the loader which will be used to register the hooks
 	 * with WordPress.
@@ -102,12 +99,6 @@ class WPML_Cloudinary {
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wpml-cloudinary-admin.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wpml-cloudinary-public.php';
 
 		$this->loader = new WPML_Cloudinary_Loader();
 
@@ -143,26 +134,9 @@ class WPML_Cloudinary {
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_admin, 'load_requirements' );
 		$this->loader->add_action( 'wpml_loaded', $plugin_admin, 'wpml_loaded', 2 );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'wp_ajax_fix_missing_file_paths', $plugin_admin, 'fix_missing_file_paths' );
 		$this->loader->add_filter( 'update_attached_file', $plugin_admin, 'updated_attached_file', 10, 2 );
-	}
-
-	/**
-	 * Register all of the hooks related to the public-facing functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_public_hooks() {
-
-		$plugin_public = new WPML_Cloudinary_Public( $this->get_wpml_cloudinary(), $this->get_version() );
-
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-
 	}
 
 	/**
