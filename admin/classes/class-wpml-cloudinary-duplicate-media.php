@@ -40,8 +40,9 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Update duplicated WPML attachment file when original get's updated by Cloudinary
 	 */
 	public function file_updated($file, $attachment_id) {
-		$upload_file = $file;
-		$uploads     = wp_get_upload_dir();
+		$upload_file      = $file;
+		$uploads          = wp_get_upload_dir();
+		$cloudinary_media = $this->get_cloudinary_media();
 
 		// Get relative upload path from absolute file path
 		if (0 === strpos($file, $uploads['basedir'])) {
@@ -52,18 +53,17 @@ class WPML_Cloudinary_Duplicate_Media {
 		$upload_file = apply_filters('_wp_relative_upload_path', $upload_file, $file);
 		$duplicates  = $this->get_attachment_duplicates($attachment_id);
 
-		// If attachment has duplicates
+		// Get attachment duplicates
 		if ($duplicates && $upload_file) {
 			foreach ($duplicates as $duplicate) {
 				if (!$duplicate->original) {
-					$cloudinary_media = $this->get_cloudinary_media();
 					$is_cloudinary    = (bool) $cloudinary_media->is_cloudinary_url($upload_file);
 					$cloudinary_meta  = get_post_meta($attachment_id, '_cloudinary_v2', true);
 					$duplicate_id     = (int) $duplicate->element_id;
 					update_post_meta($duplicate_id, '_wp_attached_file', $upload_file);
 
 					// Copy _cloudinary_v2 meta when sync is finished
-					syslog(LOG_DEBUG, 'file:' . $upload_file . ' cloudinary url? ' . $is_cloudinary);
+					syslog(LOG_DEBUG, 'file: ' . $upload_file . ' cloudinary url: ' . $is_cloudinary);
 					if ($is_cloudinary) {
 						update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
 					}
