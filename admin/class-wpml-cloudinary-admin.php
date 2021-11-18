@@ -114,11 +114,13 @@ class WPML_Cloudinary_Admin {
 	public function updated_attachment_meta($meta_id, $object_id, $meta_key, $_meta_value) {
 		$duplicate_media = new WPML_Cloudinary_Duplicate_Media();
 
-		if (get_post_type($object_id) === 'attachment') {
+		if ( get_post_type($object_id) === 'attachment' ) {
 			$object_details  = apply_filters( 'wpml_element_language_details', NULL, array( 'element_id' => (int) $object_id, 'element_type' => 'attachment' ) );
-			syslog(LOG_DEBUG, 'object_id: ' . $object_id . ' object_details: ' . json_encode($object_details));
+			syslog(LOG_DEBUG, 'object_id: ' . $object_id . ' object source_language_code: ' . $object_details->source_language_code);
 
-			return $duplicate_media->meta_updated($object_id, $meta_key, $_meta_value);
+			if ( is_null($object_details->source_language_code) ) {
+				return $duplicate_media->meta_updated($object_id, $meta_key, $_meta_value);
+			}
 		}
 
 		return;
