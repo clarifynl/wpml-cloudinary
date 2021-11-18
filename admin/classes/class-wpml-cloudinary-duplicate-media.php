@@ -66,7 +66,7 @@ class WPML_Cloudinary_Duplicate_Media {
 	}
 
 	/*
-	 * Update duplicated WPML attachment meta when original get's updated by Cloudinary
+	 * Update duplicated WPML attachment cloudinary meta when original get's updated by Cloudinary
 	 */
 	public function meta_updated($attachment_id, $meta_key, $meta_value) {
 		if ($meta_key === '_cloudinary_v2' && $meta_value) {
@@ -83,7 +83,6 @@ class WPML_Cloudinary_Duplicate_Media {
 						foreach ($duplicates as $duplicate) {
 							if (!$duplicate->original) {
 								$duplicate_id = (int) $duplicate->element_id;
-								syslog(LOG_DEBUG, 'original id: ' . $attachment_id . ' duplicate id: ' . $duplicate_id . ' sync_public_id: ' . $sync_public_id);
 								update_post_meta($duplicate_id, '_' . $sync_public_id, '1');
 								update_post_meta($duplicate_id, '_cloudinary_v2', $meta_value);
 							}
@@ -108,10 +107,10 @@ class WPML_Cloudinary_Duplicate_Media {
 
 		/*
 		 * MYSQL query that gets:
-		 * 1) All attachment translations with a language code
-		 * 2) Checks if the translation has a missing _wp_attached_file in postmeta
+		 * 1) All attachment translations with a source_language_code
+		 * 2) Checks if the translation has a missing _wp_attached_file in it's postmeta
 		 * 3) Checks if the original attachment exists in the translations
-		 * 4) Checks if the original attachment does have a _wp_attached_file in postmeta
+		 * 4) Checks if the original attachment does have a _wp_attached_file in it's postmeta
 		 */
 		$sql = "
 			SELECT SQL_CALC_FOUND_ROWS t.element_id, t.trid, t.source_language_code
@@ -145,10 +144,25 @@ class WPML_Cloudinary_Duplicate_Media {
 				$original_lang    = $attachment->source_language_code;
 				$original         = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
 				$attached_file    = get_post_meta($original, '_wp_attached_file', true);
+				$cloudinary_meta  = get_post_meta($original, '_cloudinary_v2', true);
 				$is_cloudinary    = (bool) $cloudinary_media->is_cloudinary_url($attached_file);
 
+				// Copy cloudinary url as atatched file to translations
 				if ($attached_file && $is_cloudinary) {
 					update_post_meta($translation, '_wp_attached_file', $attached_file);
+				}
+
+				// Copy cloudinary meta data to translations
+				if ($cloudinary_meta) {
+					update_post_meta($translation, '_cloudinary_v2', $cloudinary_meta);
+					$cloudinary_data = maybe_unserialize($cloudinary_meta);
+
+					if ($cloudinary_data && is_array($cloudinary_data)) {
+						$sync_public_id = isset($cloudinary_data['_sync_signature']['public_id']) ? $cloudinary_data['_sync_signature']['public_id'] : null;
+						if ($sync_public_id) {
+							update_post_meta($translation, '_' . $sync_public_id, '1');
+						}
+					}
 				}
 			}
 		}
