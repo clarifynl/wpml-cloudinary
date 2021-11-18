@@ -69,26 +69,25 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Update duplicated WPML attachment meta when original get's updated by Cloudinary
 	 */
 	public function meta_updated($attachment_id, $meta_key, $meta_value) {
-		$is_original = apply_filters('wpml_master_post_from_duplicate', $attachment_id);
-		syslog(LOG_DEBUG, 'attachment_id: ' . $attachment_id . ' is_original: ' . $is_original);
+		syslog(LOG_DEBUG, 'attachment_id: ' . $attachment_id);
 
-		if ($is_original && $meta_value) {
-			$duplicates = $this->get_attachment_duplicates($attachment_id);
+		// Copy _cloudinary_v2 meta and sync id when sync is finished
+		if ($meta_key === '_cloudinary_v2' && $meta_value) {
+			$cloudinary_data = maybe_unserialize($meta_value);
 
-			// Copy _cloudinary_v2 meta and sync id when sync is finished
-			if ($meta_key === '_cloudinary_v2') {
-				if ($meta_value) {
-					$cloudinary_data = maybe_unserialize($meta_value);
-					if ($cloudinary_data && is_array($cloudinary_data)) {
-						$sync_public_id = isset($cloudinary_data['_sync_signature']['public_id']) ? $cloudinary_data['_sync_signature']['public_id'] : null;
-						if ($sync_public_id) {
-							foreach ($duplicates as $duplicate) {
-								if (!$duplicate->original) {
-									syslog(LOG_DEBUG, 'sync_public_id: ' . $sync_public_id);
-									$duplicate_id = (int) $duplicate->element_id;
-									update_post_meta($duplicate_id, '_' . $sync_public_id, '1');
-									update_post_meta($duplicate_id, '_cloudinary_v2', $meta_value);
-								}
+			if ($cloudinary_data && is_array($cloudinary_data)) {
+				$sync_public_id = isset($cloudinary_data['_sync_signature']['public_id']) ? $cloudinary_data['_sync_signature']['public_id'] : null;
+
+				if ($sync_public_id) {
+					$duplicates = $this->get_attachment_duplicates($attachment_id);
+
+					if ($duplicates) {
+						foreach ($duplicates as $duplicate) {
+							if (!$duplicate->original) {
+								$duplicate_id = (int) $duplicate->element_id;
+								syslog(LOG_DEBUG, 'duplicate_id: ' . $duplicate_id . 'sync_public_id: ' . $sync_public_id);
+								update_post_meta($duplicate_id, '_' . $sync_public_id, '1');
+								update_post_meta($duplicate_id, '_cloudinary_v2', $meta_value);
 							}
 						}
 					}

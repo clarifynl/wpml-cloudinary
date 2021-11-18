@@ -112,9 +112,11 @@ class WPML_Cloudinary_Admin {
 	 * Update duplicated WPML attachment meta when original is updated by Cloudinary
 	 */
 	public function updated_attachment_meta($meta_id, $object_id, $meta_key, $_meta_value) {
-		$duplicate_media = new WPML_Cloudinary_Duplicate_Media();
+		$duplicate_media   = new WPML_Cloudinary_Duplicate_Media();
+		$is_duplicate_post = apply_filters('wpml_master_post_from_duplicate', $object_id);
+		syslog(LOG_DEBUG, 'object_id: ' . $object_id . ' is_duplicate_post: ' . $is_duplicate_post);
 
-		if (get_post_type($object_id) === 'attachment') {
+		if (get_post_type($object_id) === 'attachment' && !$is_duplicate_post) {
 			return $duplicate_media->meta_updated($object_id, $meta_key, $_meta_value);
 		}
 
