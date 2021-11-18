@@ -24,10 +24,6 @@
     "issues": "https://github.com/Booreiland/wpml-cloudinary/issues",
     "source": "https://github.com/Booreiland/wpml-cloudinary"
   },
-  "require": {
-    "php": ">=5.5.0",
-    "composer/installers": "~1.0"
-  },
   "repositories": [
     {
       "type": "vcs",
