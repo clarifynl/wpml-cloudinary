@@ -69,9 +69,6 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Update duplicated WPML attachment meta when original get's updated by Cloudinary
 	 */
 	public function meta_updated($attachment_id, $meta_key, $meta_value) {
-		syslog(LOG_DEBUG, 'attachment_id: ' . $attachment_id);
-
-		// Copy _cloudinary_v2 meta and sync id when sync is finished
 		if ($meta_key === '_cloudinary_v2' && $meta_value) {
 			$cloudinary_data = maybe_unserialize($meta_value);
 
@@ -81,11 +78,12 @@ class WPML_Cloudinary_Duplicate_Media {
 				if ($sync_public_id) {
 					$duplicates = $this->get_attachment_duplicates($attachment_id);
 
+					// Copy _cloudinary_v2 meta and public id when cloudinary is finished syncing
 					if ($duplicates) {
 						foreach ($duplicates as $duplicate) {
 							if (!$duplicate->original) {
 								$duplicate_id = (int) $duplicate->element_id;
-								syslog(LOG_DEBUG, 'duplicate_id: ' . $duplicate_id . 'sync_public_id: ' . $sync_public_id);
+								syslog(LOG_DEBUG, 'original id: ' . $attachment_id . ' duplicate id: ' . $duplicate_id . ' sync_public_id: ' . $sync_public_id);
 								update_post_meta($duplicate_id, '_' . $sync_public_id, '1');
 								update_post_meta($duplicate_id, '_cloudinary_v2', $meta_value);
 							}

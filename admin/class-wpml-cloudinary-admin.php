@@ -116,7 +116,6 @@ class WPML_Cloudinary_Admin {
 
 		if ( get_post_type($object_id) === 'attachment' ) {
 			$object_details  = apply_filters( 'wpml_element_language_details', NULL, array( 'element_id' => (int) $object_id, 'element_type' => 'attachment' ) );
-			syslog(LOG_DEBUG, 'object_id: ' . $object_id . ' object source_language_code: ' . $object_details->source_language_code);
 
 			if ( is_null($object_details->source_language_code) ) {
 				return $duplicate_media->meta_updated($object_id, $meta_key, $_meta_value);
