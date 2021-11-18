@@ -147,8 +147,8 @@ class WPML_Cloudinary_Duplicate_Media {
 				$cloudinary_meta  = get_post_meta($original, '_cloudinary_v2', true);
 				$is_cloudinary    = (bool) $cloudinary_media->is_cloudinary_url($attached_file);
 
-				// Copy cloudinary url as atatched file to translations
-				if ($attached_file && $is_cloudinary) {
+				// Copy attached file to translations
+				if ($attached_file) {
 					update_post_meta($translation, '_wp_attached_file', $attached_file);
 				}
 
