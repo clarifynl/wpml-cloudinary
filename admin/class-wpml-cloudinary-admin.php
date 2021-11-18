@@ -112,20 +112,13 @@ class WPML_Cloudinary_Admin {
 	 * Update duplicated WPML attachment meta when original is updated by Cloudinary
 	 */
 	public function updated_attachment_meta($meta_id, $object_id, $meta_key, $_meta_value) {
-		if ($meta_key === '_cloudinary_v2') {
-			syslog(LOG_DEBUG, 'updated meta_id: ' . $meta_id . ' meta_key: ' . $meta_key . ' meta_value: ' . json_encode($_meta_value));
-			// Copy _cloudinary_v2 meta and sync id when sync is finished
-			// if ($cloudinary_meta) {
-			// 	$cloudinary_data = maybe_unserialize($cloudinary_meta);
-			// 	if ($cloudinary_data && is_array($cloudinary_data)) {
-			// 		$sync_public_id = isset($cloudinary_data['_sync_signature']['public_id']) ? $cloudinary_data['_sync_signature']['public_id'] : null;
-			// 		if ($sync_public_id) {
-			// 			update_post_meta($duplicate_id, '_' . $sync_public_id, '1');
-			// 			update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
-			// 		}
-			// 	}
-			// }
+		$duplicate_media = new WPML_Cloudinary_Duplicate_Media();
+
+		if (get_post_type($object_id) === 'attachment') {
+			return $duplicate_media->meta_updated($object_id, $meta_key, $_meta_value);
 		}
+
+		return;
 	}
 
 	/**
