@@ -69,9 +69,10 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Update duplicated WPML attachment meta when original get's updated by Cloudinary
 	 */
 	public function meta_updated($attachment_id, $meta_key, $meta_value) {
-		$is_translated = apply_filters('wpml_element_has_translations', NULL, $attachment_id, 'attachment');
+		$duplicates = $this->get_attachment_duplicates($attachment_id);
+		syslog(LOG_DEBUG, 'duplicates: ' . json_encode($duplicates));
 
-		if ($is_translated) {
+		if ($duplicates && $meta_value) {
 			syslog(LOG_DEBUG, 'updated attachment_id: ' . $attachment_id . ' meta_key: ' . $meta_key . ' meta_value: ' . json_encode($meta_value));
 
 			// Copy _cloudinary_v2 meta and sync id when sync is finished
@@ -80,11 +81,16 @@ class WPML_Cloudinary_Duplicate_Media {
 					$cloudinary_data = maybe_unserialize($meta_value);
 					if ($cloudinary_data && is_array($cloudinary_data)) {
 						$sync_public_id = isset($cloudinary_data['_sync_signature']['public_id']) ? $cloudinary_data['_sync_signature']['public_id'] : null;
-						syslog(LOG_DEBUG, 'sync_public_id: ' . $sync_public_id);
-						// if ($sync_public_id) {
-						// 	update_post_meta($duplicate_id, '_' . $sync_public_id, '1');
-						// 	update_post_meta($duplicate_id, '_cloudinary_v2', $cloudinary_meta);
-						// }
+						if ($sync_public_id) {
+							syslog(LOG_DEBUG, 'sync_public_id: ' . $sync_public_id);
+							foreach ($duplicates as $duplicate) {
+								if (!$duplicate->original) {
+									$duplicate_id = (int) $duplicate->element_id;
+									update_post_meta($duplicate_id, '_' . $sync_public_id, '1');
+									update_post_meta($duplicate_id, '_cloudinary_v2', $meta_value);
+								}
+							}
+						}
 					}
 				}
 			}
