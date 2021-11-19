@@ -160,26 +160,28 @@ class WPML_Cloudinary_Duplicate_Media {
 		/*
 		 * MYSQL query that gets:
 		 * 1) All attachment translations with a source_language_code
-		 * 2) Checks if the translation has a missing _cloudinary_v2 in it's postmeta
+		 * 2) Checks if the translation does not have the _cloudinary_v2 meta key in it's postmeta
 		 * 3) Checks if the original attachment exists in the translations
 		 * 4) Checks if the original attachment does have a _cloudinary_v2 in it's postmeta
 		 */
 		$sql = "
 			SELECT SQL_CALC_FOUND_ROWS t.element_id, t.trid, t.source_language_code
 			FROM {$wpdb->prefix}icl_translations as t
-			INNER JOIN $wpdb->postmeta pm
-				ON t.element_id = pm.post_id
 			WHERE t.element_type = 'post_attachment'
-				AND t.source_language_code IS NOT null
-				AND pm.meta_key = %s
-				AND ifnull(pm.meta_value, '') = ''
+				AND t.source_language_code IS NOT NULL
+				AND NOT EXISTS (
+					SELECT *
+					FROM $wpdb->postmeta as pm
+					WHERE pm.meta_key = %s
+						AND pm.post_id = t.element_id
+				)
 				AND t.trid IN (
 					SELECT trid
 					FROM {$wpdb->prefix}icl_translations as o
 					INNER JOIN $wpdb->postmeta pmo
 						ON o.element_id = pmo.post_id
 					WHERE o.element_type = 'post_attachment'
-						AND o.source_language_code IS null
+						AND o.source_language_code IS NULL
 						AND pmo.meta_key = %s
 						AND pmo.meta_value <> ''
 				)
@@ -189,7 +191,6 @@ class WPML_Cloudinary_Duplicate_Media {
 		$sql_prepared = $wpdb->prepare( $sql, array( self::META_KEYS['cloudinary'], self::META_KEYS['cloudinary'], $limit ) );
 		$attachments  = $wpdb->get_results( $sql_prepared );
 		$found        = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
-		syslog(LOG_DEBUG, 'found: ' . $found);
 
 		if ( $attachments ) {
 			foreach ( $attachments as $attachment ) {
