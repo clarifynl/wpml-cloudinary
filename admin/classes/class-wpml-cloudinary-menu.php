@@ -36,9 +36,15 @@ class WPML_Cloudinary_Menu {
 			'strings'     => array(
 				'heading'     => __('Cloudinary Media Translation', 'wpml-cloudinary'),
 				'warning'     => __('Please make backup of your database before using this.', 'wpml-cloudinary'),
-				'description' => __('Sets the attached file path from the original when missing for attachments that are marked as duplicated.', 'wpml-cloudinary'),
+				'finished'    => __("You're all done! From now on, all new cloudinary media that you insert will be synced between translations.", 'wpml-cloudinary')
+			),
+			'file_paths'  => array(
+				'description' => __('Copies the attached file path from the original to attachments that are marked as translations.', 'wpml-cloudinary'),
 				'button'      => __('Fix missing file paths on duplicated media', 'wpml-cloudinary'),
-				'finished'    => __("You're all done. From now on, all new Cloudinary media that you insert will be synced between translations.", 'wpml-cloudinary')
+			),
+			'cloudinary_meta' => array(
+				'description' => __('Copies the cloudinary metadata from the original to attachments that are marked as translations.', 'wpml-cloudinary'),
+				'button'      => __('Fix missing cloudinary metadata on duplicated media', 'wpml-cloudinary'),
 			)
 		);
 

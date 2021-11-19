@@ -21,6 +21,10 @@
 							wpml_cloudinary_options_form_working();
 							wpml_cloudinary_fix_missing_file_paths();
 							break;
+						case 'fix_missing_cloudinary_meta':
+							wpml_cloudinary_options_form_working();
+							wpml_cloudinary_fix_missing_cloudinary_meta();
+							break;
 					}
 				}
 
@@ -72,6 +76,28 @@
 				},
 				error: function (jqXHR, textStatus) {
 					wpml_update_status('Duplicating missing file paths: please try again (' + textStatus + ')');
+				}
+
+			});
+		}
+
+		function wpml_cloudinary_fix_missing_cloudinary_meta() {
+			$.ajax({
+				url:      ajaxurl,
+				type:     'POST',
+				data:     {action: 'fix_missing_cloudinary_meta'},
+				dataType: 'json',
+				success:  function (ret) {
+					wpml_update_status(ret.message);
+					if (ret.left > 0) {
+						wpml_cloudinary_fix_missing_cloudinary_meta();
+					} else {
+						wpml_cloudinary_options_form_finished(ret.message);
+						$('#wpml_cloudinary_all_done').fadeIn();
+					}
+				},
+				error: function (jqXHR, textStatus) {
+					wpml_update_status('Duplicating missing cloudinary meta: please try again (' + textStatus + ')');
 				}
 
 			});

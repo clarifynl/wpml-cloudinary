@@ -5,9 +5,16 @@
 		<form id="wpml_cloudinary_options_form">
 			<input type="hidden" name="security" value="{{ ajax_nonce }}">
 			<input type="hidden" id="wpml_cloudinary_options_action">
-			<input name="fix_missing_file_paths" type="submit" class="button-secondary" value="{{ strings.button }}"><br>
-			<small>{{ strings.description|raw }}</small><br>
-			<img class="progress" src="{{ spinner }}" width="16" height="16" alt="loading" style="display: none;"/>&nbsp;<span class="status"> </span>
+			<div style="margin-bottom:6px;">
+				<input name="fix_missing_file_paths" type="submit" class="button-secondary" value="{{ file_paths.button }}"><br>
+				<small>{{ file_paths.description|raw }}</small><br>
+				<img class="progress" src="{{ spinner }}" width="16" height="16" alt="loading" style="display: none;"/>&nbsp;<span class="status"></span>
+			</div>
+			<div style="margin-bottom:6px;">
+				<input name="fix_missing_cloudinary_meta" type="submit" class="button-secondary" value="{{ cloudinary_meta.button }}"><br>
+				<small>{{ cloudinary_meta.description|raw }}</small><br>
+				<img class="progress" src="{{ spinner }}" width="16" height="16" alt="loading" style="display: none;"/>&nbsp;<span class="status"></span>
+			</div>
 		</form>
 		<div id="wpml_cloudinary_all_done" class="hidden updated">
 			<p>{{ strings.finished }}</p>

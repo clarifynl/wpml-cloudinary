@@ -138,6 +138,7 @@ class WPML_Cloudinary {
 		$this->loader->add_filter( 'update_attached_file', $plugin_admin, 'updated_attached_file', 10, 2 );
 		$this->loader->add_action( 'updated_post_meta', $plugin_admin, 'updated_attachment_meta', 10, 4 );
 		$this->loader->add_action( 'wp_ajax_fix_missing_file_paths', $plugin_admin, 'fix_missing_file_paths' );
+		$this->loader->add_action( 'wp_ajax_fix_missing_cloudinary_meta', $plugin_admin, 'fix_missing_cloudinary_meta' );
 	}
 
 	/**

@@ -135,4 +135,15 @@ class WPML_Cloudinary_Admin {
 
 		return $duplicate_media->fix_missing_file_paths();
 	}
+
+	/**
+	 * Handle the AJAX post request for fixing the missing cloudinary meta
+	 *
+	 * @since    1.0.0
+	 */
+	public function fix_missing_cloudinary_meta() {
+		$duplicate_media = new WPML_Cloudinary_Duplicate_Media();
+
+		return $duplicate_media->fix_missing_cloudinary_meta();
+	}
 }
