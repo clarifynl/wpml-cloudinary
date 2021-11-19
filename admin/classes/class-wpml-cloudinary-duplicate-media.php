@@ -172,7 +172,7 @@ class WPML_Cloudinary_Duplicate_Media {
 			WHERE t.element_type = 'post_attachment'
 				AND t.source_language_code IS NOT null
 				AND pm.meta_key = %s
-				AND pm.meta_value = ''
+				AND ifnull(pm.meta_value, '') = ''
 				AND t.trid IN (
 					SELECT trid
 					FROM {$wpdb->prefix}icl_translations as o
@@ -189,7 +189,7 @@ class WPML_Cloudinary_Duplicate_Media {
 		$sql_prepared = $wpdb->prepare( $sql, array( self::META_KEYS['cloudinary'], self::META_KEYS['cloudinary'], $limit ) );
 		$attachments  = $wpdb->get_results( $sql_prepared );
 		$found        = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
-		syslog(LOG_DEBUG, 'meta keys: ' . json_encode(self::META_KEYS) . ' found: ' . $found);
+		syslog(LOG_DEBUG, 'found: ' . $found);
 
 		if ( $attachments ) {
 			foreach ( $attachments as $attachment ) {
