@@ -5,53 +5,49 @@
 	function onLoadEvent() {
 		var form         = $('#wpml_cloudinary_options_form');
 		var form_action  = form.find('#wpml_cloudinary_options_action');
-		var submitButton = form.find(':submit');
+		var actionButton = form.find(':button');
 
-		submitButton.click(
+		actionButton.click(
 			function () {
 				form_action.val($(this).attr('name'));
-			}
-		);
+				var action = $(this).parent('.action');
 
-		form.submit(
-			function () {
-				if (!submitButton.attr('disabled')) {
+				if (!$(this).attr('disabled')) {
 					switch (form_action.val()) {
 						case 'fix_missing_file_paths':
-							wpml_cloudinary_options_form_working();
-							wpml_cloudinary_fix_missing_file_paths();
+							wpml_cloudinary_options_form_working(action);
+							wpml_cloudinary_fix_missing_file_paths(action);
 							break;
 						case 'fix_missing_cloudinary_meta':
-							wpml_cloudinary_options_form_working();
-							wpml_cloudinary_fix_missing_cloudinary_meta();
+							wpml_cloudinary_options_form_working(action);
+							wpml_cloudinary_fix_missing_cloudinary_meta(action);
 							break;
 					}
 				}
 
 				form_action.val(0);
-				return false;
 			}
 		);
 
-		function wpml_update_status(message) {
-			$(form).find('.status').html(message);
+		function wpml_update_status(action, message) {
+			$(action).find('.status').html(message);
 			if (message.length > 0) {
-				$(form).find('.status').show();
+				$(action).find('.status').show();
 			} else {
-				$(form).find('.status').fadeOut();
+				$(action).find('.status').fadeOut();
 			}
 		}
 
-		function wpml_cloudinary_options_form_working() {
+		function wpml_cloudinary_options_form_working(action) {
 			wpml_update_status('');
-			submitButton.prop('disabled', true);
-			$(form).find('.progress').fadeIn();
+			$(action).find(':button').prop('disabled', true);
+			$(action).find('.progress').fadeIn();
 		}
 
-		function wpml_cloudinary_options_form_finished(status) {
-			submitButton.prop('disabled', false);
-			$(form).find('.progress').fadeOut();
-			wpml_update_status(status);
+		function wpml_cloudinary_options_form_finished(action, status) {
+			$(action).find(':button').prop('disabled', false);
+			$(action).find('.progress').fadeOut();
+			wpml_update_status(action, status);
 			window.setTimeout(
 				function () {
 					wpml_update_status('');
@@ -59,45 +55,45 @@
 			);
 		}
 
-		function wpml_cloudinary_fix_missing_file_paths() {
+		function wpml_cloudinary_fix_missing_file_paths(action) {
 			$.ajax({
 				url:      ajaxurl,
 				type:     'POST',
 				data:     {action: 'fix_missing_file_paths'},
 				dataType: 'json',
 				success:  function (ret) {
-					wpml_update_status(ret.message);
+					wpml_update_status(action, ret.message);
 					if (ret.left > 0) {
-						wpml_cloudinary_fix_missing_file_paths();
+						wpml_cloudinary_fix_missing_file_paths(action);
 					} else {
-						wpml_cloudinary_options_form_finished(ret.message);
+						wpml_cloudinary_options_form_finished(action, ret.message);
 						$('#wpml_cloudinary_all_done').fadeIn();
 					}
 				},
 				error: function (jqXHR, textStatus) {
-					wpml_update_status('Duplicating missing file paths: please try again (' + textStatus + ')');
+					wpml_update_status(action, 'Duplicating missing file paths: please try again (' + textStatus + ')');
 				}
 
 			});
 		}
 
-		function wpml_cloudinary_fix_missing_cloudinary_meta() {
+		function wpml_cloudinary_fix_missing_cloudinary_meta(action) {
 			$.ajax({
 				url:      ajaxurl,
 				type:     'POST',
 				data:     {action: 'fix_missing_cloudinary_meta'},
 				dataType: 'json',
 				success:  function (ret) {
-					wpml_update_status(ret.message);
+					wpml_update_status(action, ret.message);
 					if (ret.left > 0) {
-						wpml_cloudinary_fix_missing_cloudinary_meta();
+						wpml_cloudinary_fix_missing_cloudinary_meta(action);
 					} else {
-						wpml_cloudinary_options_form_finished(ret.message);
+						wpml_cloudinary_options_form_finished(action, ret.message);
 						$('#wpml_cloudinary_all_done').fadeIn();
 					}
 				},
 				error: function (jqXHR, textStatus) {
-					wpml_update_status('Duplicating missing cloudinary meta: please try again (' + textStatus + ')');
+					wpml_update_status(action, 'Duplicating missing cloudinary meta: please try again (' + textStatus + ')');
 				}
 
 			});

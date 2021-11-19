@@ -189,7 +189,7 @@ class WPML_Cloudinary_Duplicate_Media {
 		$sql_prepared = $wpdb->prepare( $sql, array( self::META_KEYS['cloudinary'], self::META_KEYS['cloudinary'], $limit ) );
 		$attachments  = $wpdb->get_results( $sql_prepared );
 		$found        = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
-		syslog(LOG_DEBUG, 'meta keys: ' . self::META_KEYS['cloudinary'] . ' found: ' . $found);
+		syslog(LOG_DEBUG, 'meta keys: ' . json_encode(self::META_KEYS) . ' found: ' . $found);
 
 		if ( $attachments ) {
 			foreach ( $attachments as $attachment ) {
