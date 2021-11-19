@@ -39,7 +39,7 @@
 		}
 
 		function wpml_cloudinary_options_form_working(action) {
-			wpml_update_status('');
+			wpml_update_status(action, '');
 			$(action).find(':button').prop('disabled', true);
 			$(action).find('.progress').fadeIn();
 		}
@@ -50,7 +50,7 @@
 			wpml_update_status(action, status);
 			window.setTimeout(
 				function () {
-					wpml_update_status('');
+					wpml_update_status(action, '');
 				}, 1000
 			);
 		}
