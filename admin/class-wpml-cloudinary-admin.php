@@ -61,6 +61,12 @@ class WPML_Cloudinary_Admin {
 
 		if ( ! defined( 'CLDN_CORE') ) {
 			add_action( 'admin_notices', array( $notices, 'missing_cldn_notice' ) );
+		} else {
+			$cldn_plugin_data = get_plugin_data(CLDN_CORE);
+
+			if ($cldn_plugin_data && isset($cldn_plugin_data['Version'])) {
+				define('CLOUDINARY_VERSION', $cldn_plugin_data['Version']);
+			}
 		}
 	}
 
