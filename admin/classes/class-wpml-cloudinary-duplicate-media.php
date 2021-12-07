@@ -16,6 +16,18 @@ class WPML_Cloudinary_Duplicate_Media {
 	/**
 	 * Get all attachment translations created by WPML
 	 */
+	public function get_cloudinary_meta_key() {
+		$cloudinary_key = 'cloudinary';
+		if ( defined( 'CLOUDINARY_VERSION') ) {
+			$cloudinary_key = floor(CLOUDINARY_VERSION) === 3 ? 'cloudinary_v3' : 'cloudinary';
+		}
+
+		return $cloudinary_key;
+	}
+
+	/**
+	 * Get all attachment translations created by WPML
+	 */
 	public function get_attachment_duplicates($attachment_id) {
 		$trid = apply_filters('wpml_element_trid', NULL, $attachment_id, 'post_attachment');
 		if ($trid) {
@@ -60,14 +72,17 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Update duplicated WPML attachment cloudinary meta when original get's updated by Cloudinary
 	 */
 	public function meta_updated($attachment_id, $meta_key, $meta_value) {
-		if ($meta_key === self::META_KEYS['cloudinary'] && $meta_value) {
+		$cloudinary_key = $this->get_cloudinary_meta_key();
+		syslog(LOG_DEBUG, 'cloudinary key: ' . $cloudinary_key);
+
+		if ($meta_key === self::META_KEYS[$cloudinary_key] && $meta_value) {
 			$duplicates = $this->get_attachment_duplicates($attachment_id);
 
 			if ($duplicates) {
 				foreach ($duplicates as $duplicate) {
 					if (!$duplicate->original) {
 						$duplicate_id = (int) $duplicate->element_id;
-						update_post_meta($duplicate_id, self::META_KEYS['cloudinary'], $meta_value);
+						update_post_meta($duplicate_id, self::META_KEYS[$cloudinary_key], $meta_value);
 					}
 				}
 			}
@@ -84,6 +99,7 @@ class WPML_Cloudinary_Duplicate_Media {
 
 		$limit = 10;
 		$response = array();
+		$cloudinary_key = $this->get_cloudinary_meta_key();
 
 		/*
 		 * MYSQL query that gets:
@@ -124,7 +140,7 @@ class WPML_Cloudinary_Duplicate_Media {
 				$original_lang   = $attachment->source_language_code;
 				$original        = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
 				$attached_file   = get_post_meta($original, self::META_KEYS['attached_file'], true);
-				$cloudinary_meta = get_post_meta($original, self::META_KEYS['cloudinary'], true);
+				$cloudinary_meta = get_post_meta($original, self::META_KEYS[$cloudinary_key], true);
 
 				// Copy attached file to translations
 				if ($attached_file) {
@@ -133,7 +149,7 @@ class WPML_Cloudinary_Duplicate_Media {
 
 				// Copy cloudinary meta data to translations
 				if ($cloudinary_meta) {
-					update_post_meta($translation, self::META_KEYS['cloudinary'], $cloudinary_meta);
+					update_post_meta($translation, self::META_KEYS[$cloudinary_key], $cloudinary_meta);
 				}
 			}
 		}
@@ -156,6 +172,7 @@ class WPML_Cloudinary_Duplicate_Media {
 
 		$limit = 10;
 		$response = array();
+		$cloudinary_key = $this->get_cloudinary_meta_key();
 
 		/*
 		 * MYSQL query that gets:
@@ -188,7 +205,7 @@ class WPML_Cloudinary_Duplicate_Media {
 			LIMIT %d
 		";
 
-		$sql_prepared = $wpdb->prepare( $sql, array( self::META_KEYS['cloudinary'], self::META_KEYS['cloudinary'], $limit ) );
+		$sql_prepared = $wpdb->prepare( $sql, array( self::META_KEYS[$cloudinary_key], self::META_KEYS[$cloudinary_key], $limit ) );
 		$attachments  = $wpdb->get_results( $sql_prepared );
 		$found        = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
 
@@ -197,11 +214,11 @@ class WPML_Cloudinary_Duplicate_Media {
 				$translation     = (int) $attachment->element_id;
 				$original_lang   = $attachment->source_language_code;
 				$original        = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
-				$cloudinary_meta = get_post_meta($original, self::META_KEYS['cloudinary'], true);
+				$cloudinary_meta = get_post_meta($original, self::META_KEYS[$cloudinary_key], true);
 
 				// Copy cloudinary meta data to translations
 				if ($cloudinary_meta) {
-					update_post_meta($translation, self::META_KEYS['cloudinary'], $cloudinary_meta);
+					update_post_meta($translation, self::META_KEYS[$cloudinary_key], $cloudinary_meta);
 				}
 			}
 		}
