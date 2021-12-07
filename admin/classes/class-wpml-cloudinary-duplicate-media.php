@@ -7,10 +7,10 @@ class WPML_Cloudinary_Duplicate_Media {
 	 */
 	const META_KEYS = array(
 		'attached_file' => '_wp_attached_file',
-		'public_id'     => '_public_id',
 		'cloudinary'    => '_cloudinary_v2',
-		'process_log'   => '_cloudinary_process_log',
-		'cloudinary_v3' => '_cloudinary'
+		'cloudinary_v3' => '_cloudinary',
+		'public_id'     => '_public_id',
+		'process_log'   => '_cloudinary_process_log'
 	);
 
 	/**
