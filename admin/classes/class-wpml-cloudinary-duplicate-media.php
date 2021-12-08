@@ -6,11 +6,11 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Holds the meta keys for Cloudinary sync meta to maintain consistency.
 	 */
 	const META_KEYS = array(
-		'attached_file' => '_wp_attached_file',
-		'cloudinary'    => '_cloudinary_v2',
-		'cloudinary_v3' => '_cloudinary',
-		'public_id'     => '_public_id',
-		'process_log'   => '_cloudinary_process_log'
+		'attached_file'     => '_wp_attached_file',
+		'cloudinary_legacy' => '_cloudinary_v2',
+		'cloudinary'        => '_cloudinary',
+		'public_id'         => '_public_id',
+		'process_log'       => '_cloudinary_process_log'
 	);
 
 	/**
@@ -19,7 +19,7 @@ class WPML_Cloudinary_Duplicate_Media {
 	public function get_cloudinary_meta_key() {
 		$cloudinary_key = 'cloudinary';
 		if ( defined( 'CLOUDINARY_VERSION') ) {
-			$cloudinary_key = floor(CLOUDINARY_VERSION) === 3 ? 'cloudinary_v3' : 'cloudinary';
+			$cloudinary_key = floor(CLOUDINARY_VERSION) > 2 ? 'cloudinary' : 'cloudinary_legacy';
 		}
 
 		return $cloudinary_key;
