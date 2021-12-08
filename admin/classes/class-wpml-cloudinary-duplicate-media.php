@@ -6,8 +6,10 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Holds the main meta keys
 	 */
 	const META_KEYS = array(
-		'attached_file' => '_wp_attached_file',
-		'public_id'     => '_public_id'
+		'attached_file'     => '_wp_attached_file',
+		'cloudinary'        => '_cloudinary',
+		'cloudinary_legacy' => '_cloudinary_v2',
+		'public_id'         => '_public_id'
 	);
 
 	/**
@@ -21,6 +23,18 @@ class WPML_Cloudinary_Duplicate_Media {
 		'_cloudinary_v2',
 		'_cloudinary_process_log'
 	);
+
+	/**
+	 * Get cloudinary meta key based upon cloudinary plugin version
+	 */
+	public function get_cloudinary_meta_key() {
+		$cloudinary_key = 'cloudinary';
+		if ( defined( 'CLOUDINARY_VERSION') ) {
+			$cloudinary_key = floor(CLOUDINARY_VERSION) > 2 ? 'cloudinary' : 'cloudinary_legacy';
+		}
+
+		return $cloudinary_key;
+	}
 
 	/**
 	 * Get all attachment translations created by WPML
@@ -69,7 +83,7 @@ class WPML_Cloudinary_Duplicate_Media {
 	 * Update duplicated WPML attachment cloudinary meta when original get's updated by Cloudinary
 	 */
 	public function meta_updated($attachment_id, $meta_key, $meta_value) {
-		if (array_key_exists($meta_key, self::SYNC_KEYS) && $meta_value) {
+		if (in_array($meta_key, self::SYNC_KEYS) && $meta_value) {
 			$duplicates = $this->get_attachment_duplicates($attachment_id);
 
 			if ($duplicates) {
@@ -167,6 +181,7 @@ class WPML_Cloudinary_Duplicate_Media {
 
 		$limit = 10;
 		$response = array();
+		$cloudinary_key = $this->get_cloudinary_meta_key();
 
 		/*
 		 * MYSQL query that gets:
