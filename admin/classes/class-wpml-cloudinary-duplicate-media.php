@@ -257,19 +257,20 @@ class WPML_Cloudinary_Duplicate_Media {
 		/*
 		 * MYSQL query that gets:
 		 * 1) All attachment translations with a source_language_code
-		 * 2) Checks if the original attachment exists in the translations
 		 */
 		$sql = "
-			SELECT SQL_CALC_FOUND_ROWS t.element_id, t.trid, t.source_language_code
-			FROM {$wpdb->prefix}icl_translations as t
-			WHERE t.element_type = 'post_attachment'
-			AND t.source_language_code IS NOT NULL
+			SELECT SQL_CALC_FOUND_ROWS element_id
+			FROM {$wpdb->prefix}icl_translations
+			WHERE element_type = 'post_attachment'
+			AND source_language_code IS NOT NULL
 			LIMIT %d
 		";
 
 		$sql_prepared = $wpdb->prepare( $sql, array( $limit ) );
 		$attachments  = $wpdb->get_results( $sql_prepared );
 		$found        = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
+
+		syslog(LOG_DEBUG, 'found: '. $found);
 
 		if ( $attachments ) {
 			foreach ( $attachments as $attachment ) {
