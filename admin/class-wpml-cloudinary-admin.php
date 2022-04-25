@@ -152,4 +152,15 @@ class WPML_Cloudinary_Admin {
 
 		return $duplicate_media->fix_missing_cloudinary_meta();
 	}
+
+	/**
+	 * Handle the AJAX post request for fixing the incorrect wordpress meta
+	 *
+	 * @since    1.1.0
+	 */
+	public function fix_incorrect_wordpress_meta() {
+		$duplicate_media = new WPML_Cloudinary_Duplicate_Media();
+
+		return $duplicate_media->fix_incorrect_wordpress_meta();
+	}
 }

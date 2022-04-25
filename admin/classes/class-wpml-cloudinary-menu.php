@@ -45,6 +45,10 @@ class WPML_Cloudinary_Menu {
 			'cloudinary_meta' => array(
 				'description' => __('Copies the cloudinary metadata from the original to attachments that are marked as translations.', 'wpml-cloudinary'),
 				'button'      => __('Fix missing cloudinary metadata on duplicated media', 'wpml-cloudinary'),
+			),
+			'wordpress_meta' => array(
+				'description' => __('Copies the wordpress metadata from the original to attachments that are marked as translations.', 'wpml-cloudinary'),
+				'button'      => __('Fix incorrect wordpress metadata on duplicated media', 'wpml-cloudinary'),
 			)
 		);
 

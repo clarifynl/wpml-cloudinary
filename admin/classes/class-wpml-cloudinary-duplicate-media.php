@@ -244,4 +244,54 @@ class WPML_Cloudinary_Duplicate_Media {
 
 		wp_send_json( $response );
 	}
+
+	/*
+	 * Fix incorrect wordpress metadata on existing duplicated media
+	 */
+	public function fix_incorrect_wordpress_meta() {
+		global $wpdb;
+
+		$limit = 10;
+		$response = array();
+
+		/*
+		 * MYSQL query that gets:
+		 * 1) All attachment translations with a source_language_code
+		 * 2) Checks if the original attachment exists in the translations
+		 */
+		$sql = "
+			SELECT SQL_CALC_FOUND_ROWS t.element_id, t.trid, t.source_language_code
+			FROM {$wpdb->prefix}icl_translations as t
+			WHERE t.element_type = 'post_attachment'
+				AND t.source_language_code IS NOT NULL
+			LIMIT %d
+		";
+
+		$sql_prepared = $wpdb->prepare( $sql, array( $limit ) );
+		$attachments  = $wpdb->get_results( $sql_prepared );
+		$found        = $wpdb->get_var( 'SELECT FOUND_ROWS()' );
+
+		if ( $attachments ) {
+			foreach ( $attachments as $attachment ) {
+				$translation    = (int) $attachment->element_id;
+				$original_lang  = $attachment->source_language_code;
+				$original       = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
+
+				// Copy wordpress metadata to translations
+				$meta_value = get_post_meta($original, '_wp_attachment_metadata', true);
+				if ($meta_value) {
+					update_post_meta($translation, '_wp_attachment_metadata', $meta_value);
+				}
+			}
+		}
+
+		$response['left'] = max( $found - $limit, 0 );
+		if ( $response['left'] ) {
+			$response['message'] = sprintf( esc_html__( 'Updating wordpress metadata on duplicated media. %d left', 'wpml-cloudinary' ), $response['left'] );
+		} else {
+			$response['message'] = sprintf( esc_html__( 'Updating wordpress metadata on duplicated media: done!', 'wpml-cloudinary' ), $response['left'] );
+		}
+
+		wp_send_json( $response );
+	}
 }

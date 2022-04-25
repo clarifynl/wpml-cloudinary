@@ -22,6 +22,10 @@
 							wpml_cloudinary_options_form_working(action);
 							wpml_cloudinary_fix_missing_cloudinary_meta(action);
 							break;
+						case 'fix_incorrect_wordpress_meta':
+							wpml_cloudinary_options_form_working(action);
+							wpml_cloudinary_fix_incorrect_wordpress_meta(action);
+							break;
 					}
 				}
 
@@ -94,6 +98,28 @@
 				},
 				error: function (jqXHR, textStatus) {
 					wpml_update_status(action, 'Duplicating missing cloudinary meta: please try again (' + textStatus + ')');
+				}
+
+			});
+		}
+
+		function wpml_cloudinary_fix_incorrect_wordpress_meta(action) {
+			$.ajax({
+				url:      ajaxurl,
+				type:     'POST',
+				data:     {action: 'fix_incorrect_wordpress_meta'},
+				dataType: 'json',
+				success:  function (ret) {
+					wpml_update_status(action, ret.message);
+					if (ret.left > 0) {
+						wpml_cloudinary_fix_incorrect_wordpress_meta(action);
+					} else {
+						wpml_cloudinary_options_form_finished(action, ret.message);
+						$('#wpml_cloudinary_all_done').fadeIn();
+					}
+				},
+				error: function (jqXHR, textStatus) {
+					wpml_update_status(action, 'Duplicating incorrect wordpress meta: please try again (' + textStatus + ')');
 				}
 
 			});

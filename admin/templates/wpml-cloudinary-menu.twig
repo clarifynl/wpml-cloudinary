@@ -15,6 +15,11 @@
 				<small>{{ cloudinary_meta.description|raw }}</small><br>
 				<img class="progress" src="{{ spinner }}" width="16" height="16" alt="loading" style="display: none;"/>&nbsp;<span class="status"></span>
 			</div>
+			<div class="action">
+				<input name="fix_incorrect_wordpress_meta" type="button" class="button-secondary" value="{{ wordpress_meta.button }}"><br>
+				<small>{{ wordpress_meta.description|raw }}</small><br>
+				<img class="progress" src="{{ spinner }}" width="16" height="16" alt="loading" style="display: none;"/>&nbsp;<span class="status"></span>
+			</div>
 		</form>
 		<div id="wpml_cloudinary_all_done" class="hidden updated">
 			<p>{{ strings.finished }}</p>
