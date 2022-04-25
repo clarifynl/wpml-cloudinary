@@ -263,7 +263,7 @@ class WPML_Cloudinary_Duplicate_Media {
 			SELECT SQL_CALC_FOUND_ROWS t.element_id, t.trid, t.source_language_code
 			FROM {$wpdb->prefix}icl_translations as t
 			WHERE t.element_type = 'post_attachment'
-				AND t.source_language_code IS NOT NULL
+			AND t.source_language_code IS NOT NULL
 			LIMIT %d
 		";
 
