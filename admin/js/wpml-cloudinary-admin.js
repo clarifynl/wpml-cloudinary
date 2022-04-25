@@ -104,14 +104,12 @@
 		}
 
 		function wpml_cloudinary_fix_incorrect_wordpress_meta(action) {
-			console.log(action);
 			$.ajax({
 				url:      ajaxurl,
 				type:     'POST',
 				data:     {action: 'fix_incorrect_wordpress_meta'},
 				dataType: 'json',
 				success:  function (ret) {
-					console.log(ret);
 					wpml_update_status(action, ret.message);
 					if (ret.left > 0) {
 						wpml_cloudinary_fix_incorrect_wordpress_meta(action);
