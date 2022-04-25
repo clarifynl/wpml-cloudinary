@@ -21,7 +21,8 @@ class WPML_Cloudinary_Duplicate_Media {
 		'_cld_remote_format',
 		'_cloudinary',
 		'_cloudinary_v2',
-		'_cloudinary_process_log'
+		'_cloudinary_process_log',
+		'_wp_attachment_metadata'
 	);
 
 	/**
