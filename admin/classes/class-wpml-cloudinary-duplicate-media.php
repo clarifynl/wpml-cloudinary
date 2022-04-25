@@ -278,9 +278,12 @@ class WPML_Cloudinary_Duplicate_Media {
 				$original_lang  = $attachment->source_language_code;
 				$original       = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
 
+				syslog(LOG_DEBUG, 'translation: '. $translation . ' original: ' . $original);
+
 				// Copy wordpress metadata to translations
 				$meta_value = get_post_meta($original, '_wp_attachment_metadata', true);
 				if ($meta_value) {
+					syslog(LOG_DEBUG, 'meta_value: '. json_encode($meta_value));
 					update_post_meta($translation, '_wp_attachment_metadata', $meta_value);
 				}
 			}

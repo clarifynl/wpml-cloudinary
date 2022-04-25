@@ -119,6 +119,7 @@
 					}
 				},
 				error: function (jqXHR, textStatus) {
+					console.log(jqXHR, textStatus);
 					wpml_update_status(action, 'Duplicating incorrect wordpress meta: please try again (' + textStatus + ')');
 				}
 
