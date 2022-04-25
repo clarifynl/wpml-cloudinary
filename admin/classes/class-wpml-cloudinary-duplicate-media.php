@@ -282,7 +282,6 @@ class WPML_Cloudinary_Duplicate_Media {
 		}
 
 		$response['message'] = esc_html__( 'Updating wordpress metadata on duplicated media: done!', 'wpml-cloudinary' );
-		}
 
 		wp_send_json( $response );
 	}
