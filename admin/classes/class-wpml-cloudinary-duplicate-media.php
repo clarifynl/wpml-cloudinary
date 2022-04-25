@@ -259,7 +259,7 @@ class WPML_Cloudinary_Duplicate_Media {
 		 * 1) All attachment translations with a source_language_code
 		 */
 		$sql = "
-			SELECT SQL_CALC_FOUND_ROWS element_id
+			SELECT SQL_CALC_FOUND_ROWS element_id, source_language_code
 			FROM {$wpdb->prefix}icl_translations
 			WHERE element_type = 'post_attachment'
 			AND source_language_code IS NOT NULL
@@ -275,7 +275,7 @@ class WPML_Cloudinary_Duplicate_Media {
 		if ( $attachments ) {
 			foreach ( $attachments as $attachment ) {
 				$translation    = (int) $attachment->element_id;
-				$original_lang  = $attachment->source_language_code;
+				$original_lang  = (string) $attachment->source_language_code;
 				$original       = (int) apply_filters('wpml_object_id', $translation, 'attachment', FALSE, $original_lang);
 
 				syslog(LOG_DEBUG, 'translation: '. $translation . ' original: ' . $original);
