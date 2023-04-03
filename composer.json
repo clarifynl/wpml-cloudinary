@@ -1,5 +1,5 @@
 {
-  "name": "booreiland/wpml-cloudinary",
+  "name": "clarifynl/wpml-cloudinary",
   "type": "wordpress-plugin",
   "description": "Multilingual support for the Cloudinary WordPress plugin.",
   "keywords": [
@@ -9,29 +9,29 @@
     "wpml",
     "cloudinary"
   ],
-  "homepage": "https://booreiland.amsterdam",
+  "homepage": "https://clarify.nl",
   "license": [
       "GPL-3.0"
   ],
   "authors": [
     {
       "name": "Toine Kamps",
-      "email" : "toine@booreiland.amsterdam",
-      "homepage": "https://booreiland.amsterdam"
+      "email" : "toine.kamps@clarify.nl",
+      "homepage": "https://clarify.nl"
     }
   ],
   "support": {
-    "issues": "https://github.com/Booreiland/wpml-cloudinary/issues",
-    "source": "https://github.com/Booreiland/wpml-cloudinary"
+    "issues": "https://github.com/clarifynl/wpml-cloudinary/issues",
+    "source": "https://github.com/clarifynl/wpml-cloudinary"
   },
   "require": {
     "php": ">=5.5.0",
-    "composer/installers": "~1.0"
+    "composer/installers": ">=1.0"
   },
   "repositories": [
     {
       "type": "vcs",
-      "url": "git@github.com:Booreiland/wpml-cloudinary.git"
+      "url": "git@github.com:clarifynl/wpml-cloudinary.git"
     }
   ]
 }

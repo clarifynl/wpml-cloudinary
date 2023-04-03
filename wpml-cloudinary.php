@@ -8,9 +8,9 @@
  * Plugin Name:       WPML Cloudinary
  * Plugin URI:        https://wpml.org/
  * Description:       Multilingual support for the Cloudinary WordPress plugin
- * Version:           1.1.0
- * Author:            Booreiland
- * Author URI:        https://booreiland.amsterdam
+ * Version:           1.1.1
+ * Author:            Clarify
+ * Author URI:        https://clarify.nl
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       wpml-cloudinary
@@ -26,7 +26,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'WPML_CLOUDINARY_VERSION', '1.1.0' );
+define( 'WPML_CLOUDINARY_VERSION', '1.1.1' );
 define( 'WPML_CLOUDINARY_PLUGIN_PATH', __DIR__ );
 
 /**
